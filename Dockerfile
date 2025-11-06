@@ -14,6 +14,11 @@ WORKDIR /app
 COPY CMakeLists.txt .
 COPY include ./include
 COPY unittest ./unittest
+COPY scripts ./scripts
 
-RUN cmake -S . -B build && cmake --build build --parallel
-CMD ["ctest", "--test-dir", "build", "--output-on-failure"]
+RUN cmake -S . -B build/develop -DCOMPETITIVE_BUILD_MODE="Develop"
+RUN cmake -S . -B build/release -DCOMPETITIVE_BUILD_MODE="Release"
+RUN cmake --build build/develop --parallel
+RUN cmake --build build/release --parallel
+
+CMD ["./scripts/execute_test.sh"]
