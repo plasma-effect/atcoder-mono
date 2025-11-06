@@ -1,5 +1,5 @@
-set(CMAKE_C_COMPILER /usr/bin/gcc-15)
-set(CMAKE_CXX_COMPILER /usr/bin/g++-15)
+set(CMAKE_C_COMPILER gcc-15)
+set(CMAKE_CXX_COMPILER g++-15)
 set(HOME_DIR $ENV{HOME})
 cmake_minimum_required(VERSION 3.16)
 
