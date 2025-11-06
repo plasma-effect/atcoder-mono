@@ -33,7 +33,7 @@ jobs:
           tags: cpp-test:latest
           load: true
           cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest/tmp/.buildx-cache-new,mode=max
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Run tests inside Docker
         run: docker run --rm cpp-test:latest
