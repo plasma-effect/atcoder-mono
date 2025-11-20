@@ -1,4 +1,7 @@
 #pragma once
+#include "utility/assert.hpp"
+#include "utility/irange.hpp"
+#include "utility/priority_queue.hpp"
 #include <bits/stdc++.h>
 
 namespace common {
