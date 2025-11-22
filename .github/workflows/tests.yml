@@ -11,35 +11,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+      - name: Detect change files
+        id: changed
+        uses: tj-actions/changed-files@v4
+
+      - name: Set flags
+        id: flags
+        run: |
+          CHANGED="${{ steps.changed.outputs.all_changed_files }}"
+          run_ACL=false
+          run_Competitive=false
+          if echo "$CHANGED" | grep -qE '^ac-library/'; then
+            run_ACL=true
+            run_Competitive=true
+          elif echo "$CHANGED" | grep -qE '^include/'; then
+            run_Competitive=true
+          fi
+          echo "run_ACL=$run_ACL" >> $GITHUB_OUTPUT
+          echo "run_Competitive=$run_Competitive" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build test image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          tags: cpp-test:latest
+          target: runner
           load: true
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-
-      - name: Run tests inside Docker
-        run: docker run --rm cpp-test:latest
-
-      - name: Move Docker cache
-        if: always()
+          tags: cpp-test:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Run AC-Library Test
+        if: ${{ steps.flags.outputs.run_ACL == 'true' }}
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          docker run --rm cpp-test:latest \
+            bash -c "ctest --test-dir build/original --output-on-failure"
+          docker run --rm cpp-test:latest \
+            bash -c "ctest --test-dir build/custom  --output-on-failure"
+
+      - name: Run Competitive-Library Test
+        if: ${{ steps.flags.outputs.run_Competitive == 'true' }}
+        run: |
+          docker run --rm cpp-test:latest \
+            bash -c "ctest --test-dir build/develop  --output-on-failure"
+          docker run --rm cpp-test:latest \
+            bash -c "ctest --test-dir build/release  --output-on-failure"
