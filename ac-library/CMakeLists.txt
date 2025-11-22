@@ -1,3 +1,5 @@
+set(CMAKE_C_COMPILER gcc-15)
+set(CMAKE_CXX_COMPILER g++-15)
 cmake_minimum_required(VERSION 3.17)
 project(ACLibrary)
 
