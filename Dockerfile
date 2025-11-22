@@ -40,7 +40,6 @@ COPY ac-library ./ac-library
 COPY CMakeLists.txt .
 COPY include ./include
 COPY unittest ./unittest
-COPY scripts ./scripts
 
 RUN cmake -S . -B build/develop -DCOMPETITIVE_BUILD_MODE="Develop" \
     -G Ninja \
