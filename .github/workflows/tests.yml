@@ -23,10 +23,10 @@ jobs:
           CHANGED="${{ steps.changed.outputs.all_changed_files }}"
           run_ACL=false
           run_Competitive=false
-          if echo "$CHANGED" | grep -qE '^ac-library/'; then
+          if echo "$CHANGED" | grep -qE '(^|\s)ac-library/'; then
             run_ACL=true
             run_Competitive=true
-          elif echo "$CHANGED" | grep -qE '^include/'; then
+          elif echo "$CHANGED" | grep -qE '(^|\s)include/'; then
             run_Competitive=true
           fi
           echo "run_ACL=$run_ACL" >> $GITHUB_OUTPUT
