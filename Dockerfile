@@ -16,7 +16,7 @@ RUN curl -O https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz
 RUN tar -xzf boost_1_88_0.tar.gz
 RUN mv boost_1_88_0/boost /usr/local/include/boost
 
-FROM base AS buildACL
+FROM base AS build_acl
 
 WORKDIR /workspace
 COPY ac-library ./ac-library
@@ -32,7 +32,7 @@ RUN cmake -S ac-library -B build/custom -DCMAKE_BUILD_TYPE="Custom" \
 RUN cmake --build build/original --parallel
 RUN cmake --build build/custom --parallel
 
-FROM base AS buildCompetitive
+FROM base AS build_competitive
 
 WORKDIR /workspace
 
@@ -55,10 +55,10 @@ RUN cmake --build build/release --parallel
 
 FROM ubuntu:25.10 AS runner
 RUN apt-get update && apt-get install -y cmake ninja-build
-COPY --from=buildACL /workspace/build/original /workspace/build/original
-COPY --from=buildACL /workspace/build/custom /workspace/build/custom
-COPY --from=buildCompetitive /workspace/build/develop /workspace/build/develop
-COPY --from=buildCompetitive /workspace/build/release /workspace/build/release
+COPY --from=build_acl /workspace/build/original /workspace/build/original
+COPY --from=build_acl /workspace/build/custom /workspace/build/custom
+COPY --from=build_competitive /workspace/build/develop /workspace/build/develop
+COPY --from=build_competitive /workspace/build/release /workspace/build/release
 
 WORKDIR /workspace
 CMD ["/bin/bash"]
