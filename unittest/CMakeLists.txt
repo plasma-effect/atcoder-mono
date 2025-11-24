@@ -41,6 +41,19 @@ apply_common_options(utility_irange_unittest)
 add_executable(utility_priority_queue_unittest utility/priority_queue.cpp)
 apply_common_options(utility_priority_queue_unittest)
 
+# stdin/stdout
+add_executable(io_debug_print_unittest io/debug_print.cpp)
+apply_common_options(io_debug_print_unittest)
+
+add_executable(io_normal_print_unittest io/normal_print.cpp)
+apply_common_options(io_normal_print_unittest)
+
+add_executable(io_print_base_unittest io/print_base.cpp)
+apply_common_options(io_print_base_unittest)
+
 # union headers
+add_executable(stdio_unittest stdio.cpp)
+apply_common_options(stdio_unittest)
+
 add_executable(utility_unittest utility.cpp)
 apply_common_options(utility_unittest)
