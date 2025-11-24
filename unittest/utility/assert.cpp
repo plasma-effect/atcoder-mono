@@ -3,7 +3,7 @@
 
 #ifdef LOCAL_DEBUG
 TEST(Assertion, Macro) {
-  auto _from = std::source_location::current();
+  common::debug::internal::location _from = std::source_location::current();
   ASSERT_NO_THROW(CL_ASSERT(true));
   ASSERT_THROW(CL_ASSERT(false), std::logic_error);
 }
