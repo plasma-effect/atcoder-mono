@@ -5,6 +5,8 @@
 #include <cassert>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
+
 namespace atcoder {
 
 // Implement (union by size) + (path compression)
@@ -16,10 +18,10 @@ struct dsu {
     dsu() : _n(0) {}
     explicit dsu(int n) : _n(n), parent_or_size(n, -1) {}
 
-    int merge(int a, int b) {
-        assert(0 <= a && a < _n);
-        assert(0 <= b && b < _n);
-        int x = leader(a), y = leader(b);
+    int merge(int a, int b, FROM_LOCATION) {
+        ACL_ASSERT(0 <= a && a < _n);
+        ACL_ASSERT(0 <= b && b < _n);
+        int x = leader(a, _from), y = leader(b, _from);
         if (x == y) return x;
         if (-parent_or_size[x] < -parent_or_size[y]) std::swap(x, y);
         parent_or_size[x] += parent_or_size[y];
@@ -27,27 +29,27 @@ struct dsu {
         return x;
     }
 
-    bool same(int a, int b) {
-        assert(0 <= a && a < _n);
-        assert(0 <= b && b < _n);
-        return leader(a) == leader(b);
+    bool same(int a, int b, FROM_LOCATION) {
+        ACL_ASSERT(0 <= a && a < _n);
+        ACL_ASSERT(0 <= b && b < _n);
+        return leader(a, _from) == leader(b, _from);
     }
 
-    int leader(int a) {
-        assert(0 <= a && a < _n);
+    int leader(int a, FROM_LOCATION) {
+        ACL_ASSERT(0 <= a && a < _n);
         if (parent_or_size[a] < 0) return a;
-        return parent_or_size[a] = leader(parent_or_size[a]);
+        return parent_or_size[a] = leader(parent_or_size[a], _from);
     }
 
-    int size(int a) {
-        assert(0 <= a && a < _n);
-        return -parent_or_size[leader(a)];
+    int size(int a, FROM_LOCATION) {
+        ACL_ASSERT(0 <= a && a < _n);
+        return -parent_or_size[leader(a, _from)];
     }
 
-    std::vector<std::vector<int>> groups() {
+    std::vector<std::vector<int>> groups(FROM_LOCATION) {
         std::vector<int> leader_buf(_n), group_size(_n);
         for (int i = 0; i < _n; i++) {
-            leader_buf[i] = leader(i);
+            leader_buf[i] = leader(i, _from);
             group_size[leader_buf[i]]++;
         }
         std::vector<std::vector<int>> result(_n);
@@ -57,10 +59,10 @@ struct dsu {
         for (int i = 0; i < _n; i++) {
             result[leader_buf[i]].push_back(i);
         }
-        result.erase(
-            std::remove_if(result.begin(), result.end(),
-                           [&](const std::vector<int>& v) { return v.empty(); }),
-            result.end());
+        result.erase(std::remove_if(
+                         result.begin(), result.end(),
+                         [&](const std::vector<int>& v) { return v.empty(); }),
+                     result.end());
         return result;
     }
 

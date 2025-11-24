@@ -5,6 +5,7 @@
 #include <numeric>
 #include <type_traits>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/internal/math.hpp"
 #include "atcoder/internal/type_traits.hpp"
 
@@ -88,8 +89,8 @@ struct static_modint : internal::static_modint_base {
     mint operator+() const { return *this; }
     mint operator-() const { return mint() - *this; }
 
-    mint pow(long long n) const {
-        assert(0 <= n);
+    mint pow(long long n, FROM_LOCATION) const {
+        ACL_ASSERT(0 <= n);
         mint x = *this, r = 1;
         while (n) {
             if (n & 1) r *= x;
@@ -98,13 +99,13 @@ struct static_modint : internal::static_modint_base {
         }
         return r;
     }
-    mint inv() const {
+    mint inv(FROM_LOCATION) const {
         if (prime) {
-            assert(_v);
-            return pow(umod() - 2);
+            ACL_ASSERT(_v);
+            return pow(umod() - 2, _from);
         } else {
             auto eg = internal::inv_gcd(_v, m);
-            assert(eg.first == 1);
+            ACL_ASSERT(eg.first == 1);
             return eg.second;
         }
     }
@@ -139,8 +140,8 @@ template <int id> struct dynamic_modint : internal::modint_base {
 
   public:
     static int mod() { return (int)(bt.umod()); }
-    static void set_mod(int m) {
-        assert(1 <= m);
+    static void set_mod(int m, FROM_LOCATION) {
+        ACL_ASSERT(1 <= m);
         bt = internal::barrett(m);
     }
     static mint raw(int v) {
@@ -203,8 +204,8 @@ template <int id> struct dynamic_modint : internal::modint_base {
     mint operator+() const { return *this; }
     mint operator-() const { return mint() - *this; }
 
-    mint pow(long long n) const {
-        assert(0 <= n);
+    mint pow(long long n, FROM_LOCATION) const {
+        ACL_ASSERT(0 <= n);
         mint x = *this, r = 1;
         while (n) {
             if (n & 1) r *= x;
@@ -213,9 +214,9 @@ template <int id> struct dynamic_modint : internal::modint_base {
         }
         return r;
     }
-    mint inv() const {
+    mint inv(FROM_LOCATION) const {
         auto eg = internal::inv_gcd(_v, mod());
-        assert(eg.first == 1);
+        ACL_ASSERT(eg.first == 1);
         return eg.second;
     }
 

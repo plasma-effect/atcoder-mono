@@ -5,6 +5,7 @@
 #include <cassert>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/internal/scc.hpp"
 
 namespace atcoder {
@@ -14,11 +15,11 @@ struct scc_graph {
     scc_graph() : internal(0) {}
     explicit scc_graph(int n) : internal(n) {}
 
-    void add_edge(int from, int to) {
+    void add_edge(int from, int to, FROM_LOCATION) {
 #ifndef NDEBUG
         int n = internal.num_vertices();
-        assert(0 <= from && from < n);
-        assert(0 <= to && to < n);
+        ACL_ASSERT(0 <= from && from < n);
+        ACL_ASSERT(0 <= to && to < n);
 #endif
         internal.add_edge(from, to);
     }

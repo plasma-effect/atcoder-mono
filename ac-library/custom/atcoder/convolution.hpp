@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/modint.hpp"
 
 namespace atcoder {
@@ -29,9 +30,9 @@ struct fft_info {
     std::array<mint, std::max(0, rank2 - 3 + 1)> rate3;
     std::array<mint, std::max(0, rank2 - 3 + 1)> irate3;
 
-    fft_info() {
-        root[rank2] = mint(g).pow((mint::mod() - 1) >> rank2);
-        iroot[rank2] = root[rank2].inv();
+    fft_info(FROM_LOCATION) {
+        root[rank2] = mint(g).pow((mint::mod() - 1) >> rank2, _from);
+        iroot[rank2] = root[rank2].inv(_from);
         for (int i = rank2 - 1; i >= 0; i--) {
             root[i] = root[i + 1] * root[i + 1];
             iroot[i] = iroot[i + 1] * iroot[i + 1];
@@ -59,11 +60,11 @@ struct fft_info {
 };
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-void butterfly(std::vector<mint>& a) {
+void butterfly(std::vector<mint>& a, FROM_LOCATION) {
     int n = int(a.size());
     int h = std::countr_zero((unsigned int)n);
 
-    static const fft_info<mint> info;
+    static const fft_info<mint> info{_from};
 
     int len = 0;  // a[i, i+(n>>len), i+2*(n>>len), ..] is transformed
     while (len < h) {
@@ -113,11 +114,11 @@ void butterfly(std::vector<mint>& a) {
 }
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-void butterfly_inv(std::vector<mint>& a) {
+void butterfly_inv(std::vector<mint>& a, FROM_LOCATION) {
     int n = int(a.size());
     int h = std::countr_zero((unsigned int)n);
 
-    static const fft_info<mint> info;
+    static const fft_info<mint> info{_from};
 
     int len = h;  // a[i, i+(n>>len), i+2*(n>>len), ..] is transformed
     while (len) {
@@ -197,19 +198,21 @@ std::vector<mint> convolution_naive(const std::vector<mint>& a,
 }
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-std::vector<mint> convolution_fft(std::vector<mint> a, std::vector<mint> b) {
+std::vector<mint> convolution_fft(std::vector<mint> a,
+                                  std::vector<mint> b,
+                                  FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
     a.resize(z);
-    internal::butterfly(a);
+    internal::butterfly(a, _from);
     b.resize(z);
-    internal::butterfly(b);
+    internal::butterfly(b, _from);
     for (int i = 0; i < z; i++) {
         a[i] *= b[i];
     }
-    internal::butterfly_inv(a);
+    internal::butterfly_inv(a, _from);
     a.resize(n + m - 1);
-    mint iz = mint(z).inv();
+    mint iz = mint(z).inv(_from);
     for (int i = 0; i < n + m - 1; i++) a[i] *= iz;
     return a;
 }
@@ -217,36 +220,41 @@ std::vector<mint> convolution_fft(std::vector<mint> a, std::vector<mint> b) {
 }  // namespace internal
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-std::vector<mint> convolution(std::vector<mint>&& a, std::vector<mint>&& b) {
+std::vector<mint> convolution(std::vector<mint>&& a,
+                              std::vector<mint>&& b,
+                              FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
 #ifndef NDEBUG
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
-    assert((mint::mod() - 1) % z == 0);
+    ACL_ASSERT((mint::mod() - 1) % z == 0);
 #endif
 
     if (std::min(n, m) <= 60)
         return convolution_naive(std::move(a), std::move(b));
-    return internal::convolution_fft(std::move(a), std::move(b));
+    return internal::convolution_fft(std::move(a), std::move(b), _from);
 }
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
 std::vector<mint> convolution(const std::vector<mint>& a,
-                              const std::vector<mint>& b) {
+                              const std::vector<mint>& b,
+                              FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
-    assert((mint::mod() - 1) % z == 0);
+    ACL_ASSERT((mint::mod() - 1) % z == 0);
 
     if (std::min(n, m) <= 60) return convolution_naive(a, b);
-    return internal::convolution_fft(a, b);
+    return internal::convolution_fft(a, b, _from);
 }
 
 template <unsigned int mod = 998244353,
           class T,
           std::enable_if_t<internal::is_integral<T>::value>* = nullptr>
-std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
+std::vector<T> convolution(const std::vector<T>& a,
+                           const std::vector<T>& b,
+                           FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -254,7 +262,7 @@ std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
 
 #ifndef NDEBUG
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
-    assert((mint::mod() - 1) % z == 0);
+    ACL_ASSERT((mint::mod() - 1) % z == 0);
 #endif
 
     std::vector<mint> a2(n), b2(m);
@@ -264,7 +272,7 @@ std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
     for (int i = 0; i < m; i++) {
         b2[i] = mint(b[i]);
     }
-    auto c2 = convolution(std::move(a2), std::move(b2));
+    auto c2 = convolution(std::move(a2), std::move(b2), _from);
     std::vector<T> c(n + m - 1);
     for (int i = 0; i < n + m - 1; i++) {
         c[i] = c2[i].val();
@@ -273,7 +281,8 @@ std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
 }
 
 inline std::vector<long long> convolution_ll(const std::vector<long long>& a,
-                                             const std::vector<long long>& b) {
+                                             const std::vector<long long>& b,
+                                             FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -299,11 +308,11 @@ inline std::vector<long long> convolution_ll(const std::vector<long long>& a,
                   "MOD2 isn't enough to support an array length of 2^24.");
     static_assert(MOD3 % (1ull << MAX_AB_BIT) == 1,
                   "MOD3 isn't enough to support an array length of 2^24.");
-    assert(n + m - 1 <= (1 << MAX_AB_BIT));
+    ACL_ASSERT(n + m - 1 <= (1 << MAX_AB_BIT));
 
-    auto c1 = convolution<MOD1>(a, b);
-    auto c2 = convolution<MOD2>(a, b);
-    auto c3 = convolution<MOD3>(a, b);
+    auto c1 = convolution<MOD1>(a, b, _from);
+    auto c2 = convolution<MOD2>(a, b, _from);
+    auto c3 = convolution<MOD3>(a, b, _from);
 
     std::vector<long long> c(n + m - 1);
     for (int i = 0; i < n + m - 1; i++) {
