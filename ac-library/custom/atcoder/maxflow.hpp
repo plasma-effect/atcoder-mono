@@ -43,11 +43,11 @@ template <class Cap> struct mf_graph {
         auto _re = g[_e.to][_e.rev];
         return edge{pos[i].first, _e.to, _e.cap + _re.cap, _re.cap};
     }
-    std::vector<edge> edges() {
+    std::vector<edge> edges(FROM_LOCATION) {
         int m = int(pos.size());
         std::vector<edge> result;
         for (int i = 0; i < m; i++) {
-            result.push_back(get_edge(i));
+            result.push_back(get_edge(i, _from));
         }
         return result;
     }

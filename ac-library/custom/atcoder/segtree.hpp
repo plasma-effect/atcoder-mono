@@ -87,7 +87,7 @@ template <class S, auto op, auto e> struct segtree {
     }
 
     template <bool (*f)(S)> int min_left(int r, FROM_LOCATION) const {
-        return min_left(r, [](S x) { return f(x); });
+        return min_left(r, [](S x) { return f(x); }, _from);
     }
     template <class F> int min_left(int r, F f, FROM_LOCATION) const {
         ACL_ASSERT(0 <= r && r <= _n);
