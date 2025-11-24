@@ -50,13 +50,10 @@ public:
     ost << v;
   }
   template <std::input_iterator It> void print_ite(It first, It last) {
-    ost << rng_prefix;
-    if (first != last) {
+    const char* d = rng_prefix;
+    for (; first != last; ++first) {
+      ost << std::exchange(d, rng_delim);
       *this << *first;
-      for (++first; first != last; ++first) {
-        ost << rng_delim;
-        *this << *first;
-      }
     }
     ost << rng_suffix;
   }
@@ -68,11 +65,7 @@ public:
   }
   template <std::size_t S, std::size_t I, typename T>
   void tuple_print(T const& t) {
-    if constexpr (I == 0) {
-      ost << tpl_prefix;
-    } else {
-      ost << tpl_delim;
-    }
+    ost << (I == 0 ? tpl_prefix : tpl_delim);
     *this << std::get<I>(t);
     if constexpr (I + 1 != S) {
       tuple_print<S, I + 1>(t);
