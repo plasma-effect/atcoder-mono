@@ -7,8 +7,9 @@ inline void println() {
   std::cerr << std::endl;
 }
 template <typename... Ts> void println(Ts const&... args) {
-  common::internal::print_base_t pb(std::cerr, {"{", "}", ", "},
-                                    {"(", ")", ", "});
+  const char* rng[] = {"{", "}", ", "};
+  const char* tpl[] = {"(", ")", ", "};
+  common::internal::print_base_t pb(std::cerr, rng, tpl);
   common::internal::print<false>(pb, args...);
   std::cerr << std::endl;
 }

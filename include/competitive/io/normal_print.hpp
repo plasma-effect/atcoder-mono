@@ -7,7 +7,8 @@ inline void println() {
   std::cout << "\n";
 }
 template <typename... Ts> void println(Ts const&... args) {
-  internal::print_base_t pb(std::cout, {"", "", " "}, {"", "", " "});
+  const char* dec[] = {"", "", " "};
+  internal::print_base_t pb(std::cout, dec, dec);
   internal::print<false>(pb, args...);
   std::cout << "\n";
 }
