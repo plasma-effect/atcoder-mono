@@ -7,6 +7,7 @@
 #include <queue>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/internal/csr.hpp"
 #include "atcoder/internal/queue.hpp"
 
@@ -17,11 +18,11 @@ template <class Cap, class Cost> struct mcf_graph {
     mcf_graph() {}
     explicit mcf_graph(int n) : _n(n) {}
 
-    int add_edge(int from, int to, Cap cap, Cost cost) {
-        assert(0 <= from && from < _n);
-        assert(0 <= to && to < _n);
-        assert(0 <= cap);
-        assert(0 <= cost);
+    int add_edge(int from, int to, Cap cap, Cost cost, FROM_LOCATION) {
+        ACL_ASSERT(0 <= from && from < _n);
+        ACL_ASSERT(0 <= to && to < _n);
+        ACL_ASSERT(0 <= cap);
+        ACL_ASSERT(0 <= cost);
         int m = int(_edges.size());
         _edges.push_back({from, to, cap, 0, cost});
         return m;
@@ -33,26 +34,27 @@ template <class Cap, class Cost> struct mcf_graph {
         Cost cost;
     };
 
-    edge get_edge(int i) {
+    edge get_edge(int i, FROM_LOCATION) {
         int m = int(_edges.size());
-        assert(0 <= i && i < m);
+        ACL_ASSERT(0 <= i && i < m);
         return _edges[i];
     }
     std::vector<edge> edges() { return _edges; }
 
-    std::pair<Cap, Cost> flow(int s, int t) {
-        return flow(s, t, std::numeric_limits<Cap>::max());
+    std::pair<Cap, Cost> flow(int s,
+                              int t,
+                              Cap flow_limit = std::numeric_limits<Cap>::max(),
+                              FROM_LOCATION) {
+        return slope(s, t, flow_limit, _from).back();
     }
-    std::pair<Cap, Cost> flow(int s, int t, Cap flow_limit) {
-        return slope(s, t, flow_limit).back();
-    }
-    std::vector<std::pair<Cap, Cost>> slope(int s, int t) {
-        return slope(s, t, std::numeric_limits<Cap>::max());
-    }
-    std::vector<std::pair<Cap, Cost>> slope(int s, int t, Cap flow_limit) {
-        assert(0 <= s && s < _n);
-        assert(0 <= t && t < _n);
-        assert(s != t);
+    std::vector<std::pair<Cap, Cost>> slope(
+        int s,
+        int t,
+        Cap flow_limit = std::numeric_limits<Cap>::max(),
+        FROM_LOCATION) {
+        ACL_ASSERT(0 <= s && s < _n);
+        ACL_ASSERT(0 <= t && t < _n);
+        ACL_ASSERT(s != t);
 
         int m = int(_edges.size());
         std::vector<int> edge_idx(m);

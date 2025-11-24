@@ -7,6 +7,8 @@
 #include <functional>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
+
 namespace atcoder {
 
 template <class S, auto op, auto e> struct segtree {
@@ -28,20 +30,20 @@ template <class S, auto op, auto e> struct segtree {
         }
     }
 
-    void set(int p, S x) {
-        assert(0 <= p && p < _n);
+    void set(int p, S x, FROM_LOCATION) {
+        ACL_ASSERT(0 <= p && p < _n);
         p += size;
         d[p] = x;
         for (int i = 1; i <= log; i++) update(p >> i);
     }
 
-    S get(int p) const {
-        assert(0 <= p && p < _n);
+    S get(int p, FROM_LOCATION) const {
+        ACL_ASSERT(0 <= p && p < _n);
         return d[p + size];
     }
 
-    S prod(int l, int r) const {
-        assert(0 <= l && l <= r && r <= _n);
+    S prod(int l, int r, FROM_LOCATION) const {
+        ACL_ASSERT(0 <= l && l <= r && r <= _n);
         S sml = e(), smr = e();
         l += size;
         r += size;
@@ -57,12 +59,12 @@ template <class S, auto op, auto e> struct segtree {
 
     S all_prod() const { return d[1]; }
 
-    template <bool (*f)(S)> int max_right(int l) const {
-        return max_right(l, [](S x) { return f(x); });
+    template <bool (*f)(S)> int max_right(int l, FROM_LOCATION) const {
+        return max_right(l, [](S x) { return f(x); }, _from);
     }
-    template <class F> int max_right(int l, F f) const {
-        assert(0 <= l && l <= _n);
-        assert(f(e()));
+    template <class F> int max_right(int l, F f, FROM_LOCATION) const {
+        ACL_ASSERT(0 <= l && l <= _n);
+        ACL_ASSERT(f(e()));
         if (l == _n) return _n;
         l += size;
         S sm = e();
@@ -84,12 +86,12 @@ template <class S, auto op, auto e> struct segtree {
         return _n;
     }
 
-    template <bool (*f)(S)> int min_left(int r) const {
+    template <bool (*f)(S)> int min_left(int r, FROM_LOCATION) const {
         return min_left(r, [](S x) { return f(x); });
     }
-    template <class F> int min_left(int r, F f) const {
-        assert(0 <= r && r <= _n);
-        assert(f(e()));
+    template <class F> int min_left(int r, F f, FROM_LOCATION) const {
+        ACL_ASSERT(0 <= r && r <= _n);
+        ACL_ASSERT(f(e()));
         if (r == 0) return 0;
         r += size;
         S sm = e();

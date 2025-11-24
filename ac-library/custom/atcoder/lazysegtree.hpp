@@ -7,6 +7,8 @@
 #include <functional>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
+
 namespace atcoder {
 
 template <class S,
@@ -44,23 +46,23 @@ struct lazy_segtree {
         }
     }
 
-    void set(int p, S x) {
-        assert(0 <= p && p < _n);
+    void set(int p, S x, FROM_LOCATION) {
+        ACL_ASSERT(0 <= p && p < _n);
         p += size;
         for (int i = log; i >= 1; i--) push(p >> i);
         d[p] = x;
         for (int i = 1; i <= log; i++) update(p >> i);
     }
 
-    S get(int p) {
-        assert(0 <= p && p < _n);
+    S get(int p, FROM_LOCATION) {
+        ACL_ASSERT(0 <= p && p < _n);
         p += size;
         for (int i = log; i >= 1; i--) push(p >> i);
         return d[p];
     }
 
-    S prod(int l, int r) {
-        assert(0 <= l && l <= r && r <= _n);
+    S prod(int l, int r, FROM_LOCATION) {
+        ACL_ASSERT(0 <= l && l <= r && r <= _n);
         if (l == r) return e();
 
         l += size;
@@ -84,15 +86,15 @@ struct lazy_segtree {
 
     S all_prod() { return d[1]; }
 
-    void apply(int p, F f) {
-        assert(0 <= p && p < _n);
+    void apply(int p, F f, FROM_LOCATION) {
+        ACL_ASSERT(0 <= p && p < _n);
         p += size;
         for (int i = log; i >= 1; i--) push(p >> i);
         d[p] = mapping(f, d[p]);
         for (int i = 1; i <= log; i++) update(p >> i);
     }
-    void apply(int l, int r, F f) {
-        assert(0 <= l && l <= r && r <= _n);
+    void apply(int l, int r, F f, FROM_LOCATION) {
+        ACL_ASSERT(0 <= l && l <= r && r <= _n);
         if (l == r) return;
 
         l += size;
@@ -121,12 +123,12 @@ struct lazy_segtree {
         }
     }
 
-    template <bool (*g)(S)> int max_right(int l) {
-        return max_right(l, [](S x) { return g(x); });
+    template <bool (*g)(S)> int max_right(int l, FROM_LOCATION) {
+        return max_right(l, [](S x) { return g(x); }, _from);
     }
-    template <class G> int max_right(int l, G g) {
-        assert(0 <= l && l <= _n);
-        assert(g(e()));
+    template <class G> int max_right(int l, G g, FROM_LOCATION) {
+        ACL_ASSERT(0 <= l && l <= _n);
+        ACL_ASSERT(g(e()));
         if (l == _n) return _n;
         l += size;
         for (int i = log; i >= 1; i--) push(l >> i);
@@ -150,12 +152,12 @@ struct lazy_segtree {
         return _n;
     }
 
-    template <bool (*g)(S)> int min_left(int r) {
-        return min_left(r, [](S x) { return g(x); });
+    template <bool (*g)(S)> int min_left(int r, FROM_LOCATION) {
+        return min_left(r, [](S x) { return g(x); }, _from);
     }
-    template <class G> int min_left(int r, G g) {
-        assert(0 <= r && r <= _n);
-        assert(g(e()));
+    template <class G> int min_left(int r, G g, FROM_LOCATION) {
+        ACL_ASSERT(0 <= r && r <= _n);
+        ACL_ASSERT(g(e()));
         if (r == 0) return 0;
         r += size;
         for (int i = log; i >= 1; i--) push((r - 1) >> i);

@@ -7,6 +7,7 @@
 #include <queue>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/internal/queue.hpp"
 
 namespace atcoder {
@@ -16,10 +17,10 @@ template <class Cap> struct mf_graph {
     mf_graph() : _n(0) {}
     explicit mf_graph(int n) : _n(n), g(n) {}
 
-    int add_edge(int from, int to, Cap cap) {
-        assert(0 <= from && from < _n);
-        assert(0 <= to && to < _n);
-        assert(0 <= cap);
+    int add_edge(int from, int to, Cap cap, FROM_LOCATION) {
+        ACL_ASSERT(0 <= from && from < _n);
+        ACL_ASSERT(0 <= to && to < _n);
+        ACL_ASSERT(0 <= cap);
         int m = int(pos.size());
         pos.push_back({from, int(g[from].size())});
         int from_id = int(g[from].size());
@@ -35,9 +36,9 @@ template <class Cap> struct mf_graph {
         Cap cap, flow;
     };
 
-    edge get_edge(int i) {
+    edge get_edge(int i, FROM_LOCATION) {
         int m = int(pos.size());
-        assert(0 <= i && i < m);
+        ACL_ASSERT(0 <= i && i < m);
         auto _e = g[pos[i].first][pos[i].second];
         auto _re = g[_e.to][_e.rev];
         return edge{pos[i].first, _e.to, _e.cap + _re.cap, _re.cap};
@@ -50,23 +51,23 @@ template <class Cap> struct mf_graph {
         }
         return result;
     }
-    void change_edge(int i, Cap new_cap, Cap new_flow) {
+    void change_edge(int i, Cap new_cap, Cap new_flow, FROM_LOCATION) {
         int m = int(pos.size());
-        assert(0 <= i && i < m);
-        assert(0 <= new_flow && new_flow <= new_cap);
+        ACL_ASSERT(0 <= i && i < m);
+        ACL_ASSERT(0 <= new_flow && new_flow <= new_cap);
         auto& _e = g[pos[i].first][pos[i].second];
         auto& _re = g[_e.to][_e.rev];
         _e.cap = new_cap - new_flow;
         _re.cap = new_flow;
     }
 
-    Cap flow(int s, int t) {
-        return flow(s, t, std::numeric_limits<Cap>::max());
-    }
-    Cap flow(int s, int t, Cap flow_limit) {
-        assert(0 <= s && s < _n);
-        assert(0 <= t && t < _n);
-        assert(s != t);
+    Cap flow(int s,
+             int t,
+             Cap flow_limit = std::numeric_limits<Cap>::max(),
+             FROM_LOCATION) {
+        ACL_ASSERT(0 <= s && s < _n);
+        ACL_ASSERT(0 <= t && t < _n);
+        ACL_ASSERT(s != t);
 
         std::vector<int> level(_n), iter(_n);
         internal::simple_queue<int> que;

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
+
 namespace atcoder {
 
 namespace internal {
@@ -174,11 +176,13 @@ std::vector<int> sa_is(const std::vector<int>& s, int upper) {
 
 }  // namespace internal
 
-inline std::vector<int> suffix_array(const std::vector<int>& s, int upper) {
-    assert(0 <= upper);
+inline std::vector<int> suffix_array(const std::vector<int>& s,
+                                     int upper,
+                                     FROM_LOCATION) {
 #ifndef NDEBUG
+    ACL_ASSERT(0 <= upper);
     for (int d : s) {
-        assert(0 <= d && d <= upper);
+        ACL_ASSERT(0 <= d && d <= upper);
     }
 #endif
     auto sa = internal::sa_is(s, upper);
@@ -214,9 +218,10 @@ inline std::vector<int> suffix_array(const std::string& s) {
 // Applications
 template <class T>
 std::vector<int> lcp_array(const std::vector<T>& s,
-                           const std::vector<int>& sa) {
+                           const std::vector<int>& sa,
+                           FROM_LOCATION) {
     int n = int(s.size());
-    assert(n >= 1);
+    ACL_ASSERT(n >= 1);
     std::vector<int> rnk(n);
     for (int i = 0; i < n; i++) {
         rnk[sa[i]] = i;
@@ -236,13 +241,14 @@ std::vector<int> lcp_array(const std::vector<T>& s,
 }
 
 inline std::vector<int> lcp_array(const std::string& s,
-                                  const std::vector<int>& sa) {
+                                  const std::vector<int>& sa,
+                                  FROM_LOCATION) {
     int n = int(s.size());
     std::vector<int> s2(n);
     for (int i = 0; i < n; i++) {
         s2[i] = s[i];
     }
-    return lcp_array(s2, sa);
+    return lcp_array(s2, sa, _from);
 }
 
 // Reference:

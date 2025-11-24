@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/modint.hpp"
 
 namespace atcoder {
@@ -217,13 +218,15 @@ std::vector<mint> convolution_fft(std::vector<mint> a, std::vector<mint> b) {
 }  // namespace internal
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-std::vector<mint> convolution(std::vector<mint>&& a, std::vector<mint>&& b) {
+std::vector<mint> convolution(std::vector<mint>&& a,
+                              std::vector<mint>&& b,
+                              FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
 #ifndef NDEBUG
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
-    assert((mint::mod() - 1) % z == 0);
+    ACL_ASSERT((mint::mod() - 1) % z == 0);
 #endif
 
     if (std::min(n, m) <= 60)
@@ -232,12 +235,13 @@ std::vector<mint> convolution(std::vector<mint>&& a, std::vector<mint>&& b) {
 }
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
 std::vector<mint> convolution(const std::vector<mint>& a,
-                              const std::vector<mint>& b) {
+                              const std::vector<mint>& b,
+                              FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
-    assert((mint::mod() - 1) % z == 0);
+    ACL_ASSERT((mint::mod() - 1) % z == 0);
 
     if (std::min(n, m) <= 60) return convolution_naive(a, b);
     return internal::convolution_fft(a, b);
@@ -246,7 +250,9 @@ std::vector<mint> convolution(const std::vector<mint>& a,
 template <unsigned int mod = 998244353,
           class T,
           std::enable_if_t<internal::is_integral<T>::value>* = nullptr>
-std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
+std::vector<T> convolution(const std::vector<T>& a,
+                           const std::vector<T>& b,
+                           FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -254,7 +260,7 @@ std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
 
 #ifndef NDEBUG
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
-    assert((mint::mod() - 1) % z == 0);
+    ACL_ASSERT((mint::mod() - 1) % z == 0);
 #endif
 
     std::vector<mint> a2(n), b2(m);
@@ -273,7 +279,8 @@ std::vector<T> convolution(const std::vector<T>& a, const std::vector<T>& b) {
 }
 
 inline std::vector<long long> convolution_ll(const std::vector<long long>& a,
-                                             const std::vector<long long>& b) {
+                                             const std::vector<long long>& b,
+                                             FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -299,7 +306,7 @@ inline std::vector<long long> convolution_ll(const std::vector<long long>& a,
                   "MOD2 isn't enough to support an array length of 2^24.");
     static_assert(MOD3 % (1ull << MAX_AB_BIT) == 1,
                   "MOD3 isn't enough to support an array length of 2^24.");
-    assert(n + m - 1 <= (1 << MAX_AB_BIT));
+    ACL_ASSERT(n + m - 1 <= (1 << MAX_AB_BIT));
 
     auto c1 = convolution<MOD1>(a, b);
     auto c2 = convolution<MOD2>(a, b);

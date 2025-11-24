@@ -4,6 +4,7 @@
 #include <cassert>
 #include <vector>
 
+#include "atcoder/internal/assert.hpp"
 #include "atcoder/internal/type_traits.hpp"
 
 namespace atcoder {
@@ -16,8 +17,8 @@ template <class T> struct fenwick_tree {
     fenwick_tree() : _n(0) {}
     explicit fenwick_tree(int n) : _n(n), data(n) {}
 
-    void add(int p, T x) {
-        assert(0 <= p && p < _n);
+    void add(int p, T x, FROM_LOCATION) {
+        ACL_ASSERT(0 <= p && p < _n);
         p++;
         while (p <= _n) {
             data[p - 1] += U(x);
@@ -25,8 +26,8 @@ template <class T> struct fenwick_tree {
         }
     }
 
-    T sum(int l, int r) {
-        assert(0 <= l && l <= r && r <= _n);
+    T sum(int l, int r, FROM_LOCATION) {
+        ACL_ASSERT(0 <= l && l <= r && r <= _n);
         return sum(r) - sum(l);
     }
 
