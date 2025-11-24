@@ -34,7 +34,7 @@ void output_location(std::source_location loc) {
   std::cerr << " from: ";
   output_location(from_location.loc_);
   std::cerr << std::flush;
-  throw std::logic_error("assertion failed");
+  std::abort();
 }
 } // namespace common::debug::internal
 #define CL_ASSERT(expr)                                                        \

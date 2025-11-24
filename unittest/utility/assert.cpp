@@ -1,15 +1,10 @@
 #include "competitive/utility/assert.hpp"
 #include <gtest/gtest.h>
 
+TEST(Assertion, Macro) {
 #ifdef LOCAL_DEBUG
-TEST(Assertion, Macro) {
   common::debug::internal::location _from = std::source_location::current();
-  ASSERT_NO_THROW(CL_ASSERT(true));
-  ASSERT_THROW(CL_ASSERT(false), std::logic_error);
-}
-#else
-TEST(Assertion, Macro) {
+#endif
   CL_ASSERT(true);
   ASSERT_DEATH(CL_ASSERT(false), ".");
 }
-#endif
