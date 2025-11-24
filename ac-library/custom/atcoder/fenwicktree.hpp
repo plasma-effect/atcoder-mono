@@ -17,7 +17,7 @@ template <class T> struct fenwick_tree {
     fenwick_tree() : _n(0) {}
     explicit fenwick_tree(int n) : _n(n), data(n) {}
 
-    void add(int p, T x, FROM_LOCATION) {
+    void add(int p, T x, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= p && p < _n);
         p++;
         while (p <= _n) {
@@ -26,7 +26,7 @@ template <class T> struct fenwick_tree {
         }
     }
 
-    T sum(int l, int r, FROM_LOCATION) {
+    T sum(int l, int r, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= l && l <= r && r <= _n);
         return sum(r) - sum(l);
     }

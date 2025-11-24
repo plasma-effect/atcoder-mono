@@ -18,7 +18,7 @@ struct two_sat {
     two_sat() : _n(0), scc(0) {}
     explicit two_sat(int n) : _n(n), _answer(n), scc(2 * n) {}
 
-    void add_clause(int i, bool f, int j, bool g, FROM_LOCATION) {
+    void add_clause(int i, bool f, int j, bool g, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= i && i < _n);
         ACL_ASSERT(0 <= j && j < _n);
         scc.add_edge(2 * i + (f ? 0 : 1), 2 * j + (g ? 1 : 0));

@@ -15,7 +15,7 @@ struct scc_graph {
     scc_graph() : internal(0) {}
     explicit scc_graph(int n) : internal(n) {}
 
-    void add_edge(int from, int to, FROM_LOCATION) {
+    void add_edge(int from, int to, ACL_FROM_LOCATION) {
 #ifndef NDEBUG
         int n = internal.num_vertices();
         ACL_ASSERT(0 <= from && from < n);

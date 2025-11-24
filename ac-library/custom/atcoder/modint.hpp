@@ -89,7 +89,7 @@ struct static_modint : internal::static_modint_base {
     mint operator+() const { return *this; }
     mint operator-() const { return mint() - *this; }
 
-    mint pow(long long n, FROM_LOCATION) const {
+    mint pow(long long n, ACL_FROM_LOCATION) const {
         ACL_ASSERT(0 <= n);
         mint x = *this, r = 1;
         while (n) {
@@ -99,7 +99,7 @@ struct static_modint : internal::static_modint_base {
         }
         return r;
     }
-    mint inv(FROM_LOCATION) const {
+    mint inv(ACL_FROM_LOCATION) const {
         if (prime) {
             ACL_ASSERT(_v);
             return pow(umod() - 2, _from);
@@ -140,7 +140,7 @@ template <int id> struct dynamic_modint : internal::modint_base {
 
   public:
     static int mod() { return (int)(bt.umod()); }
-    static void set_mod(int m, FROM_LOCATION) {
+    static void set_mod(int m, ACL_FROM_LOCATION) {
         ACL_ASSERT(1 <= m);
         bt = internal::barrett(m);
     }
@@ -204,7 +204,7 @@ template <int id> struct dynamic_modint : internal::modint_base {
     mint operator+() const { return *this; }
     mint operator-() const { return mint() - *this; }
 
-    mint pow(long long n, FROM_LOCATION) const {
+    mint pow(long long n, ACL_FROM_LOCATION) const {
         ACL_ASSERT(0 <= n);
         mint x = *this, r = 1;
         while (n) {
@@ -214,7 +214,7 @@ template <int id> struct dynamic_modint : internal::modint_base {
         }
         return r;
     }
-    mint inv(FROM_LOCATION) const {
+    mint inv(ACL_FROM_LOCATION) const {
         auto eg = internal::inv_gcd(_v, mod());
         ACL_ASSERT(eg.first == 1);
         return eg.second;
