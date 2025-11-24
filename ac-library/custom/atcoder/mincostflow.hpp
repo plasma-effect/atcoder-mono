@@ -18,7 +18,7 @@ template <class Cap, class Cost> struct mcf_graph {
     mcf_graph() {}
     explicit mcf_graph(int n) : _n(n) {}
 
-    int add_edge(int from, int to, Cap cap, Cost cost, FROM_LOCATION) {
+    int add_edge(int from, int to, Cap cap, Cost cost, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= from && from < _n);
         ACL_ASSERT(0 <= to && to < _n);
         ACL_ASSERT(0 <= cap);
@@ -34,7 +34,7 @@ template <class Cap, class Cost> struct mcf_graph {
         Cost cost;
     };
 
-    edge get_edge(int i, FROM_LOCATION) {
+    edge get_edge(int i, ACL_FROM_LOCATION) {
         int m = int(_edges.size());
         ACL_ASSERT(0 <= i && i < m);
         return _edges[i];
@@ -44,14 +44,14 @@ template <class Cap, class Cost> struct mcf_graph {
     std::pair<Cap, Cost> flow(int s,
                               int t,
                               Cap flow_limit = std::numeric_limits<Cap>::max(),
-                              FROM_LOCATION) {
+                              ACL_FROM_LOCATION) {
         return slope(s, t, flow_limit, _from).back();
     }
     std::vector<std::pair<Cap, Cost>> slope(
         int s,
         int t,
         Cap flow_limit = std::numeric_limits<Cap>::max(),
-        FROM_LOCATION) {
+        ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= s && s < _n);
         ACL_ASSERT(0 <= t && t < _n);
         ACL_ASSERT(s != t);

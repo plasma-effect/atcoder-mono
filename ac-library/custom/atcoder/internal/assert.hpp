@@ -46,12 +46,12 @@ void output_location(std::source_location loc) {
          ? void(0)                            \
          : atcoder::internal::assertion_fail( \
                #expr, std::source_location::current(), _from))
-#define FROM_LOCATION                                    \
+#define ACL_FROM_LOCATION                                \
     [[maybe_unused]] atcoder::internal::location _from = \
         std::source_location::current()
 #else
 #define ACL_ASSERT(expr) assert(expr)
-#define FROM_LOCATION [[maybe_unused]] std::nullptr_t _from = nullptr
+#define ACL_FROM_LOCATION [[maybe_unused]] std::nullptr_t _from = nullptr
 #endif
 
 #endif

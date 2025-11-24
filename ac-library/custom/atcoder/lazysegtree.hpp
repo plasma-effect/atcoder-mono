@@ -46,7 +46,7 @@ struct lazy_segtree {
         }
     }
 
-    void set(int p, S x, FROM_LOCATION) {
+    void set(int p, S x, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= p && p < _n);
         p += size;
         for (int i = log; i >= 1; i--) push(p >> i);
@@ -54,14 +54,14 @@ struct lazy_segtree {
         for (int i = 1; i <= log; i++) update(p >> i);
     }
 
-    S get(int p, FROM_LOCATION) {
+    S get(int p, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= p && p < _n);
         p += size;
         for (int i = log; i >= 1; i--) push(p >> i);
         return d[p];
     }
 
-    S prod(int l, int r, FROM_LOCATION) {
+    S prod(int l, int r, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= l && l <= r && r <= _n);
         if (l == r) return e();
 
@@ -86,14 +86,14 @@ struct lazy_segtree {
 
     S all_prod() { return d[1]; }
 
-    void apply(int p, F f, FROM_LOCATION) {
+    void apply(int p, F f, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= p && p < _n);
         p += size;
         for (int i = log; i >= 1; i--) push(p >> i);
         d[p] = mapping(f, d[p]);
         for (int i = 1; i <= log; i++) update(p >> i);
     }
-    void apply(int l, int r, F f, FROM_LOCATION) {
+    void apply(int l, int r, F f, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= l && l <= r && r <= _n);
         if (l == r) return;
 
@@ -123,10 +123,10 @@ struct lazy_segtree {
         }
     }
 
-    template <bool (*g)(S)> int max_right(int l, FROM_LOCATION) {
+    template <bool (*g)(S)> int max_right(int l, ACL_FROM_LOCATION) {
         return max_right(l, [](S x) { return g(x); }, _from);
     }
-    template <class G> int max_right(int l, G g, FROM_LOCATION) {
+    template <class G> int max_right(int l, G g, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= l && l <= _n);
         ACL_ASSERT(g(e()));
         if (l == _n) return _n;
@@ -152,10 +152,10 @@ struct lazy_segtree {
         return _n;
     }
 
-    template <bool (*g)(S)> int min_left(int r, FROM_LOCATION) {
+    template <bool (*g)(S)> int min_left(int r, ACL_FROM_LOCATION) {
         return min_left(r, [](S x) { return g(x); }, _from);
     }
-    template <class G> int min_left(int r, G g, FROM_LOCATION) {
+    template <class G> int min_left(int r, G g, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= r && r <= _n);
         ACL_ASSERT(g(e()));
         if (r == 0) return 0;

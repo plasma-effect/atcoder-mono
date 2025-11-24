@@ -2,11 +2,12 @@
 #include "competitive/utility/assert.hpp"
 
 namespace common {
-template <std::integral Int> auto irange(Int first, Int last, FROM_LOCATION) {
+template <std::integral Int>
+auto irange(Int first, Int last, CL_FROM_LOCATION) {
   CL_ASSERT(std::cmp_less_equal(first, last));
   return std::views::iota(first, last);
 }
-template <std::integral Int> auto irange(Int last, FROM_LOCATION) {
+template <std::integral Int> auto irange(Int last, CL_FROM_LOCATION) {
   return irange(Int(0), last, _from);
 }
 
@@ -51,12 +52,13 @@ template <std::integral Int> struct dual_irange_t {
 };
 } // namespace internal
 template <std::integral Int>
-auto dual_irange(Int f0, Int e0, Int f1, Int e1, FROM_LOCATION) {
+auto dual_irange(Int f0, Int e0, Int f1, Int e1, CL_FROM_LOCATION) {
   CL_ASSERT(std::cmp_less_equal(f0, e0));
   CL_ASSERT(std::cmp_less_equal(f1, e1));
   return internal::dual_irange_t{f0, f1, e0, e1};
 }
-template <std::integral Int> auto dual_irange(Int e0, Int e1, FROM_LOCATION) {
+template <std::integral Int>
+auto dual_irange(Int e0, Int e1, CL_FROM_LOCATION) {
   return dual_irange(Int(0), e0, Int(0), e1, _from);
 }
 } // namespace common

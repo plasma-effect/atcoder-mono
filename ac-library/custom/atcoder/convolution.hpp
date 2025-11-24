@@ -30,7 +30,7 @@ struct fft_info {
     std::array<mint, std::max(0, rank2 - 3 + 1)> rate3;
     std::array<mint, std::max(0, rank2 - 3 + 1)> irate3;
 
-    fft_info(FROM_LOCATION) {
+    fft_info(ACL_FROM_LOCATION) {
         root[rank2] = mint(g).pow((mint::mod() - 1) >> rank2, _from);
         iroot[rank2] = root[rank2].inv(_from);
         for (int i = rank2 - 1; i >= 0; i--) {
@@ -60,7 +60,7 @@ struct fft_info {
 };
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-void butterfly(std::vector<mint>& a, FROM_LOCATION) {
+void butterfly(std::vector<mint>& a, ACL_FROM_LOCATION) {
     int n = int(a.size());
     int h = std::countr_zero((unsigned int)n);
 
@@ -114,7 +114,7 @@ void butterfly(std::vector<mint>& a, FROM_LOCATION) {
 }
 
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
-void butterfly_inv(std::vector<mint>& a, FROM_LOCATION) {
+void butterfly_inv(std::vector<mint>& a, ACL_FROM_LOCATION) {
     int n = int(a.size());
     int h = std::countr_zero((unsigned int)n);
 
@@ -200,7 +200,7 @@ std::vector<mint> convolution_naive(const std::vector<mint>& a,
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
 std::vector<mint> convolution_fft(std::vector<mint> a,
                                   std::vector<mint> b,
-                                  FROM_LOCATION) {
+                                  ACL_FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
     a.resize(z);
@@ -222,7 +222,7 @@ std::vector<mint> convolution_fft(std::vector<mint> a,
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
 std::vector<mint> convolution(std::vector<mint>&& a,
                               std::vector<mint>&& b,
-                              FROM_LOCATION) {
+                              ACL_FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -238,7 +238,7 @@ std::vector<mint> convolution(std::vector<mint>&& a,
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
 std::vector<mint> convolution(const std::vector<mint>& a,
                               const std::vector<mint>& b,
-                              FROM_LOCATION) {
+                              ACL_FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -254,7 +254,7 @@ template <unsigned int mod = 998244353,
           std::enable_if_t<internal::is_integral<T>::value>* = nullptr>
 std::vector<T> convolution(const std::vector<T>& a,
                            const std::vector<T>& b,
-                           FROM_LOCATION) {
+                           ACL_FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 
@@ -282,7 +282,7 @@ std::vector<T> convolution(const std::vector<T>& a,
 
 inline std::vector<long long> convolution_ll(const std::vector<long long>& a,
                                              const std::vector<long long>& b,
-                                             FROM_LOCATION) {
+                                             ACL_FROM_LOCATION) {
     int n = int(a.size()), m = int(b.size());
     if (!n || !m) return {};
 

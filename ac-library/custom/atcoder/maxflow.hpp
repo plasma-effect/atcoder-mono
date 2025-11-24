@@ -17,7 +17,7 @@ template <class Cap> struct mf_graph {
     mf_graph() : _n(0) {}
     explicit mf_graph(int n) : _n(n), g(n) {}
 
-    int add_edge(int from, int to, Cap cap, FROM_LOCATION) {
+    int add_edge(int from, int to, Cap cap, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= from && from < _n);
         ACL_ASSERT(0 <= to && to < _n);
         ACL_ASSERT(0 <= cap);
@@ -36,14 +36,14 @@ template <class Cap> struct mf_graph {
         Cap cap, flow;
     };
 
-    edge get_edge(int i, FROM_LOCATION) {
+    edge get_edge(int i, ACL_FROM_LOCATION) {
         int m = int(pos.size());
         ACL_ASSERT(0 <= i && i < m);
         auto _e = g[pos[i].first][pos[i].second];
         auto _re = g[_e.to][_e.rev];
         return edge{pos[i].first, _e.to, _e.cap + _re.cap, _re.cap};
     }
-    std::vector<edge> edges(FROM_LOCATION) {
+    std::vector<edge> edges(ACL_FROM_LOCATION) {
         int m = int(pos.size());
         std::vector<edge> result;
         for (int i = 0; i < m; i++) {
@@ -51,7 +51,7 @@ template <class Cap> struct mf_graph {
         }
         return result;
     }
-    void change_edge(int i, Cap new_cap, Cap new_flow, FROM_LOCATION) {
+    void change_edge(int i, Cap new_cap, Cap new_flow, ACL_FROM_LOCATION) {
         int m = int(pos.size());
         ACL_ASSERT(0 <= i && i < m);
         ACL_ASSERT(0 <= new_flow && new_flow <= new_cap);
@@ -64,7 +64,7 @@ template <class Cap> struct mf_graph {
     Cap flow(int s,
              int t,
              Cap flow_limit = std::numeric_limits<Cap>::max(),
-             FROM_LOCATION) {
+             ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= s && s < _n);
         ACL_ASSERT(0 <= t && t < _n);
         ACL_ASSERT(s != t);
