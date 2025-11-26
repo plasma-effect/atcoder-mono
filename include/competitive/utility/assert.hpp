@@ -19,7 +19,9 @@ struct location {
 #define CL_FROM_LOCATION                                                       \
   [[maybe_unused]] common::debug::internal::location _from =                   \
       std::source_location::current()
+#define DEFAULT_LOCATION std::source_location()
 #else
 #define CL_ASSERT(expr) assert(expr)
 #define CL_FROM_LOCATION [[maybe_unused]] std::nullptr_t _from = nullptr
+#define DEFAULT_LOCATION nullptr
 #endif
