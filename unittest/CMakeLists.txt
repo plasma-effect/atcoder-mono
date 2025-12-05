@@ -38,11 +38,11 @@ apply_common_options(container_dual_array_unittest)
 add_executable(container_static_dual_array_unittest container/static_dual_array.cpp)
 apply_common_options(container_static_dual_array_unittest)
 
-# add_executable(container_static_queue_unittest container/static_queue.cpp)
-# apply_common_options(container_static_queue_unittest)
+add_executable(container_static_queue_unittest container/static_queue.cpp)
+apply_common_options(container_static_queue_unittest)
 
-# add_executable(container_static_stack_unittest container/static_stack.cpp)
-# apply_common_options(container_static_stack_unittest)
+add_executable(container_static_stack_unittest container/static_stack.cpp)
+apply_common_options(container_static_stack_unittest)
 
 # common utility
 add_executable(utility_assert_unittest utility/assert.cpp)
