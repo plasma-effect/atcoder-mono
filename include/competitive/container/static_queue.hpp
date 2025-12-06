@@ -11,9 +11,9 @@ template <typename T, std::size_t Cap> class static_queue_base {
   std::size_t size_;
 
 protected:
-  template <typename U> void push_i(U&& v) {
+  template <typename... Args> void push_i(Args&&... args) {
     CL_ASSERT(size_ < Cap);
-    *last_ = std::forward<U>(v);
+    *last_ = T(std::forward<Args>(args)...);
     if (++last_ == elems_.end()) {
       last_ = elems_.begin();
     }
@@ -53,17 +53,16 @@ template <typename T0, typename T1, std::size_t Cap>
 class static_queue<std::pair<T0, T1>, Cap>
     : public internal::static_queue_base<std::pair<T0, T1>, Cap> {
 public:
-  template <typename U0, typename U1>
-  void push(U0&& u0, U1&& u1, CL_FROM_LOCATION) {
-    this->push_i(std::pair<T0, T1>(std::forward<U0>(u0), std::forward<U1>(u1)));
+  void push(common::argument<T0> v0, common::argument<T1> v1) {
+    this->push_i(std::move(v0.value), std::move(v1.value));
   }
 };
 template <typename... Ts, std::size_t Cap>
 class static_queue<std::tuple<Ts...>, Cap>
     : public internal::static_queue_base<std::tuple<Ts...>, Cap> {
 public:
-  void push(Ts const&... args, CL_FROM_LOCATION) {
-    this->push_i(std::tuple<Ts...>(args...));
+  void push(common::argument<Ts>... args) {
+    this->push_i(std::move(args.value)...);
   }
 };
 } // namespace competitive
