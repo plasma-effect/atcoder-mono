@@ -8,7 +8,7 @@ auto irange(Int first, Int last, CL_FROM_LOCATION) {
   return std::views::iota(first, last);
 }
 template <std::integral Int> auto irange(Int last, CL_FROM_LOCATION) {
-  return irange(Int(0), last, _from);
+  return irange(Int(0), last);
 }
 
 namespace internal {
@@ -59,6 +59,6 @@ auto dual_irange(Int f0, Int e0, Int f1, Int e1, CL_FROM_LOCATION) {
 }
 template <std::integral Int>
 auto dual_irange(Int e0, Int e1, CL_FROM_LOCATION) {
-  return dual_irange(Int(0), e0, Int(0), e1, _from);
+  return dual_irange(Int(0), e0, Int(0), e1);
 }
 } // namespace common

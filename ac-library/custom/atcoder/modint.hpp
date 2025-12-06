@@ -102,7 +102,7 @@ struct static_modint : internal::static_modint_base {
     mint inv(ACL_FROM_LOCATION) const {
         if (prime) {
             ACL_ASSERT(_v);
-            return pow(umod() - 2, _from);
+            return pow(umod() - 2);
         } else {
             auto eg = internal::inv_gcd(_v, m);
             ACL_ASSERT(eg.first == 1);

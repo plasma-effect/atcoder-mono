@@ -124,7 +124,7 @@ struct lazy_segtree {
     }
 
     template <bool (*g)(S)> int max_right(int l, ACL_FROM_LOCATION) {
-        return max_right(l, [](S x) { return g(x); }, _from);
+        return max_right(l, [](S x) { return g(x); });
     }
     template <class G> int max_right(int l, G g, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= l && l <= _n);
@@ -153,7 +153,7 @@ struct lazy_segtree {
     }
 
     template <bool (*g)(S)> int min_left(int r, ACL_FROM_LOCATION) {
-        return min_left(r, [](S x) { return g(x); }, _from);
+        return min_left(r, [](S x) { return g(x); });
     }
     template <class G> int min_left(int r, G g, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= r && r <= _n);

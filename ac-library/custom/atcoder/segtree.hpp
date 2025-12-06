@@ -60,7 +60,7 @@ template <class S, auto op, auto e> struct segtree {
     S all_prod() const { return d[1]; }
 
     template <bool (*f)(S)> int max_right(int l, ACL_FROM_LOCATION) const {
-        return max_right(l, [](S x) { return f(x); }, _from);
+        return max_right(l, [](S x) { return f(x); });
     }
     template <class F> int max_right(int l, F f, ACL_FROM_LOCATION) const {
         ACL_ASSERT(0 <= l && l <= _n);
@@ -87,7 +87,7 @@ template <class S, auto op, auto e> struct segtree {
     }
 
     template <bool (*f)(S)> int min_left(int r, ACL_FROM_LOCATION) const {
-        return min_left(r, [](S x) { return f(x); }, _from);
+        return min_left(r, [](S x) { return f(x); });
     }
     template <class F> int min_left(int r, F f, ACL_FROM_LOCATION) const {
         ACL_ASSERT(0 <= r && r <= _n);
