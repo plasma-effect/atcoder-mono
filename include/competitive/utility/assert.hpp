@@ -5,6 +5,8 @@
 namespace common::debug::internal {
 struct location {
   location(std::source_location);
+  location(location const&) = delete;
+  location(location&&) = delete;
   ~location();
 };
 [[noreturn]] void fail(const char* expr, std::source_location error_location);

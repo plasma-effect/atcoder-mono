@@ -8,44 +8,35 @@
 #ifdef LOCAL_DEBUG
 namespace atcoder::internal {
 struct location {
-    std::source_location loc_;
-    consteval location(std::source_location loc) : loc_(loc) {
-        const char NG[] = "atcoder/";
-        const char* filename = loc.file_name();
-        for (int i = 0; filename[i] != '\0'; ++i) {
-            bool match = true;
-            for (int j = 0; j < 8; ++j) {
-                if (filename[i + j] == '\0' || filename[i + j] != NG[j]) {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) {
-                throw std::logic_error("invalid location initialize");
-            }
+    inline static std::source_location FROM = std::source_location::current();
+    inline static int depth = 0;
+    location(std::source_location loc) {
+        if (depth++ == 0) {
+            FROM = loc;
         }
     }
+    location(location const&) = delete;
+    location(location&&) = delete;
+    ~location() { --depth; }
 };
-void output_location(std::source_location loc) {
+inline void output_location(std::source_location loc) {
     std::cerr << loc.function_name() << ": " << loc.line() << "\n";
 }
-[[noreturn]] inline void assertion_fail(const char* expr,
-                                        std::source_location error_location,
-                                        location from_location) {
+[[noreturn]] inline void fail(const char* expr,
+                              std::source_location error_location) {
     std::cerr << "assertion failed: \"" << expr << "\"\n";
     std::cerr << "where: ";
     output_location(error_location);
     std::cerr << " from: ";
-    output_location(from_location.loc_);
+    output_location(location::FROM);
     std::cerr << std::flush;
     std::abort();
 }
 }  // namespace atcoder::internal
-#define ACL_ASSERT(expr)                      \
-    (static_cast<bool>(expr)                  \
-         ? void(0)                            \
-         : atcoder::internal::assertion_fail( \
-               #expr, std::source_location::current(), _from))
+#define ACL_ASSERT(expr)     \
+    (static_cast<bool>(expr) \
+         ? void(0)           \
+         : atcoder::internal::fail(#expr, std::source_location::current()))
 #define ACL_FROM_LOCATION                                \
     [[maybe_unused]] atcoder::internal::location _from = \
         std::source_location::current()

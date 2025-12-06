@@ -45,7 +45,7 @@ template <class Cap, class Cost> struct mcf_graph {
                               int t,
                               Cap flow_limit = std::numeric_limits<Cap>::max(),
                               ACL_FROM_LOCATION) {
-        return slope(s, t, flow_limit, _from).back();
+        return slope(s, t, flow_limit).back();
     }
     std::vector<std::pair<Cap, Cost>> slope(
         int s,

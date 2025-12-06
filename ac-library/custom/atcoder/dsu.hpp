@@ -21,7 +21,7 @@ struct dsu {
     int merge(int a, int b, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= a && a < _n);
         ACL_ASSERT(0 <= b && b < _n);
-        int x = leader(a, _from), y = leader(b, _from);
+        int x = leader(a), y = leader(b);
         if (x == y) return x;
         if (-parent_or_size[x] < -parent_or_size[y]) std::swap(x, y);
         parent_or_size[x] += parent_or_size[y];
@@ -32,24 +32,24 @@ struct dsu {
     bool same(int a, int b, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= a && a < _n);
         ACL_ASSERT(0 <= b && b < _n);
-        return leader(a, _from) == leader(b, _from);
+        return leader(a) == leader(b);
     }
 
     int leader(int a, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= a && a < _n);
         if (parent_or_size[a] < 0) return a;
-        return parent_or_size[a] = leader(parent_or_size[a], _from);
+        return parent_or_size[a] = leader(parent_or_size[a]);
     }
 
     int size(int a, ACL_FROM_LOCATION) {
         ACL_ASSERT(0 <= a && a < _n);
-        return -parent_or_size[leader(a, _from)];
+        return -parent_or_size[leader(a)];
     }
 
     std::vector<std::vector<int>> groups(ACL_FROM_LOCATION) {
         std::vector<int> leader_buf(_n), group_size(_n);
         for (int i = 0; i < _n; i++) {
-            leader_buf[i] = leader(i, _from);
+            leader_buf[i] = leader(i);
             group_size[leader_buf[i]]++;
         }
         std::vector<std::vector<int>> result(_n);

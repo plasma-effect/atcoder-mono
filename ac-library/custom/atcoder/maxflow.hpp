@@ -47,7 +47,7 @@ template <class Cap> struct mf_graph {
         int m = int(pos.size());
         std::vector<edge> result;
         for (int i = 0; i < m; i++) {
-            result.push_back(get_edge(i, _from));
+            result.push_back(get_edge(i));
         }
         return result;
     }
