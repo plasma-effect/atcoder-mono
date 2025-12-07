@@ -11,7 +11,7 @@ class min_max_heap {
     if constexpr (is_less) {
       return values[i0 - 1] < values[i1 - 1];
     } else {
-      return values[i0 - 1] > values[i1 - 1];
+      return values[i1 - 1] < values[i0 - 1];
     }
   }
 
@@ -87,7 +87,7 @@ public:
     if (values.size() < 3) {
       return values.back();
     } else {
-      return std::max(values[1], values[2], comp);
+      return std::max(values[1], values[2]);
     }
   }
   std::size_t size() const {

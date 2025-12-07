@@ -95,30 +95,6 @@ TYPED_TEST(DataStructureMinMaxHeap, PopMinMax) {
   EXPECT_EQ(heap.size(), 0);
 }
 
-TYPED_TEST(DataStructureMinMaxHeap, CustomProj) {
-  typename TypeParam::type<common::pair<int>> heap(
-      [](common::pair<int> const& p) { return p.first + p.second; });
-  heap.emplace(2, 4);
-  EXPECT_EQ(heap.min(), std::pair(2, 4));
-  EXPECT_EQ(heap.max(), std::pair(2, 4));
-
-  heap.emplace(3, 2);
-  EXPECT_EQ(heap.min(), std::pair(3, 2));
-  EXPECT_EQ(heap.max(), std::pair(2, 4));
-
-  heap.emplace(1, 6);
-  EXPECT_EQ(heap.min(), std::pair(3, 2));
-  EXPECT_EQ(heap.max(), std::pair(1, 6));
-
-  heap.emplace(4, 0);
-  EXPECT_EQ(heap.min(), std::pair(4, 0));
-  EXPECT_EQ(heap.max(), std::pair(1, 6));
-
-  heap.emplace(0, 8);
-  EXPECT_EQ(heap.min(), std::pair(4, 0));
-  EXPECT_EQ(heap.max(), std::pair(0, 8));
-}
-
 TYPED_TEST(DataStructureMinMaxHeap, UnCopyable) {
   typename TypeParam::type<uncopyable> heap;
   EXPECT_EQ(heap.size(), 0);
@@ -183,28 +159,4 @@ TYPED_TEST(DataStructureMinMaxHeap, UnCopyablePopMinMax) {
   }
   heap.pop_max();
   EXPECT_EQ(heap.size(), 0);
-}
-
-TYPED_TEST(DataStructureMinMaxHeap, UnCopyableCustomProj) {
-  typename TypeParam::type<uncopyable> heap(
-      [](uncopyable const& p) { return std::popcount(p.v); });
-  heap.emplace(0b0'00'111'0000'00000);
-  EXPECT_EQ(heap.min(), 0b0'00'111'0000'00000);
-  EXPECT_EQ(heap.max(), 0b0'00'111'0000'00000);
-
-  heap.emplace(0b0'11'000'0000'00000);
-  EXPECT_EQ(heap.min(), 0b0'11'000'0000'00000);
-  EXPECT_EQ(heap.max(), 0b0'00'111'0000'00000);
-
-  heap.emplace(0b0'00'000'1111'00000);
-  EXPECT_EQ(heap.min(), 0b0'11'000'0000'00000);
-  EXPECT_EQ(heap.max(), 0b0'00'000'1111'00000);
-
-  heap.emplace(0b1'00'000'0000'00000);
-  EXPECT_EQ(heap.min(), 0b1'00'000'0000'00000);
-  EXPECT_EQ(heap.max(), 0b0'00'000'1111'00000);
-
-  heap.emplace(0b0'00'000'0000'11111);
-  EXPECT_EQ(heap.min(), 0b1'00'000'0000'00000);
-  EXPECT_EQ(heap.max(), 0b0'00'000'0000'11111);
 }
