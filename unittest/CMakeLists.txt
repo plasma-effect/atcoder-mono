@@ -44,6 +44,16 @@ apply_common_options(container_static_queue_unittest)
 add_executable(container_static_stack_unittest container/static_stack.cpp)
 apply_common_options(container_static_stack_unittest)
 
+# algorithm
+add_executable(algorithm_rolling_hash_unittest algorithm/rolling_hash.cpp)
+apply_common_options(algorithm_rolling_hash_unittest)
+
+add_executable(algorithm_topological_sort_unittest algorithm/topological_sort.cpp)
+apply_common_options(algorithm_topological_sort_unittest)
+
+add_executable(algorithm_warshall_floyd_unittest algorithm/warshall_floyd.cpp)
+apply_common_options(algorithm_warshall_floyd_unittest)
+
 # common utility
 add_executable(utility_assert_unittest utility/assert.cpp)
 apply_common_options(utility_assert_unittest)
