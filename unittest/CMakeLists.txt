@@ -61,6 +61,16 @@ apply_common_options(algorithm_topological_sort_unittest)
 add_executable(algorithm_warshall_floyd_unittest algorithm/warshall_floyd.cpp)
 apply_common_options(algorithm_warshall_floyd_unittest)
 
+# heuristic utility
+add_executable(heuristic_persistent_array_unittest heuristic/persistent_array.cpp)
+apply_common_options(heuristic_persistent_array_unittest)
+
+add_executable(heuristic_random_unittest heuristic/random.cpp)
+apply_common_options(heuristic_random_unittest)
+
+add_executable(heuristic_time_control_unittest heuristic/time_control.cpp)
+apply_common_options(heuristic_time_control_unittest)
+
 # common utility
 add_executable(utility_assert_unittest utility/assert.cpp)
 apply_common_options(utility_assert_unittest)
@@ -94,6 +104,9 @@ apply_common_options(stdio_unittest)
 
 add_executable(utility_unittest utility.cpp)
 apply_common_options(utility_unittest)
+
+add_executable(heuristic_unittest heuristic.cpp)
+apply_common_options(heuristic_unittest)
 
 add_executable(math_unittest math.cpp)
 apply_common_options(math_unittest)
