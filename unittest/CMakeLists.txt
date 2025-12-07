@@ -44,6 +44,13 @@ apply_common_options(container_static_queue_unittest)
 add_executable(container_static_stack_unittest container/static_stack.cpp)
 apply_common_options(container_static_stack_unittest)
 
+# data structure
+add_executable(data_structure_min_max_heap_unittest data_structure/min_max_heap.cpp)
+apply_common_options(data_structure_min_max_heap_unittest)
+
+add_executable(data_structure_segtree_unittest data_structure/segtree.cpp)
+apply_common_options(data_structure_segtree_unittest)
+
 # algorithm
 add_executable(algorithm_rolling_hash_unittest algorithm/rolling_hash.cpp)
 apply_common_options(algorithm_rolling_hash_unittest)
