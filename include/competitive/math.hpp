@@ -4,7 +4,7 @@
 #include "competitive/utility/assert.hpp"
 
 namespace common {
-template <std::integral T> constexpr T div_ceil(T a, T b) {
+template <std::integral T> constexpr T div_ceil(T a, T b, CL_FROM_LOCATION) {
   CL_ASSERT(std::cmp_greater(b, 0));
   if (std::cmp_less(a, 0)) {
     return a / b;
