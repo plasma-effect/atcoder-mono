@@ -87,6 +87,20 @@ public:
       ost << "<nullopt>";
     }
   }
+  std::array<const char*, 3> get_range_decolater() {
+    return {
+        rng_prefix,
+        rng_suffix,
+        rng_delim,
+    };
+  }
+  std::array<const char*, 3> get_tuple_decolater() {
+    return {
+        tpl_prefix,
+        tpl_suffix,
+        tpl_delim,
+    };
+  }
 };
 
 template <typename T>

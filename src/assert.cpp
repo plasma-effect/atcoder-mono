@@ -1,5 +1,6 @@
 #include "competitive/utility/assert.hpp"
 
+namespace common::debug::internal {
 #ifdef LOCAL_DEBUG
 namespace {
 void output_location(std::source_location loc) {
@@ -8,8 +9,6 @@ void output_location(std::source_location loc) {
 thread_local std::source_location FROM = std::source_location::current();
 thread_local int depth = 0;
 } // namespace
-
-namespace common::debug::internal {
 [[noreturn]] void fail(const char* expr, std::source_location error_location) {
   std::cerr << "assertion failed: \"" << expr << "\"\n";
   std::cerr << "where: ";
@@ -27,5 +26,5 @@ location::location(std::source_location loc) {
 location::~location() {
   --depth;
 }
-} // namespace common::debug::internal
 #endif
+} // namespace common::debug::internal
