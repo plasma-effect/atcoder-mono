@@ -1,6 +1,12 @@
-pub(crate) mod expander_base;
 use bpaf::Bpaf;
-use std::{fs, io, path::PathBuf, vec};
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    io::{self, Read},
+    path::PathBuf,
+    vec,
+};
+mod expander_base;
 
 #[derive(Debug, Clone, Bpaf)]
 #[bpaf(options, version)]
@@ -18,7 +24,10 @@ struct Opts {
     basename: PathBuf,
 }
 
-fn read_dirs(basename: &PathBuf, dirpath: &PathBuf) -> io::Result<Vec<PathBuf>> {
+fn read_dirs<'a>(
+    basename: &'a PathBuf,
+    dirpath: &PathBuf,
+) -> io::Result<Vec<(&'a PathBuf, PathBuf)>> {
     dbg!(&dirpath);
     let mut ret = vec![];
     for entry in fs::read_dir(dirpath)? {
@@ -30,21 +39,30 @@ fn read_dirs(basename: &PathBuf, dirpath: &PathBuf) -> io::Result<Vec<PathBuf>> 
             ret.append(&mut internal);
         } else if let Some(ext) = path.extension() {
             if ext == "hpp" || ext == "h" {
-                ret.push(path.strip_prefix(basename).unwrap().into());
+                ret.push((basename, path));
             }
         }
     }
     return Ok(ret);
 }
 
+fn read_file(path: &PathBuf) -> Vec<String> {
+    let mut f = File::open(path).unwrap();
+    let mut contents = String::new();
+    f.read_to_string(&mut contents).unwrap();
+    return contents.lines().map(|x| x.to_string()).collect();
+}
+
 fn main() -> io::Result<()> {
     let opts = opts().run();
     println!("{:#?}", &opts);
-    let mut files = vec![];
-    for dirname in opts.includes {
+    let mut filenames = vec![];
+    for dirname in &opts.includes {
         let mut internal = read_dirs(&dirname, &dirname)?;
-        files.append(&mut internal);
+        filenames.append(&mut internal);
     }
-    println!("{:#?}", files);
-    Ok(())
+    // let mut files = HashMap::new();
+    let basefile = read_file(&opts.basename);
+    println!("{:#?}", basefile);
+    return Ok(());
 }
