@@ -29,6 +29,7 @@ pub fn expand(
     stack.push((basename, 0));
     while stack.len() != 0 {
         let (filename, index) = stack.pop().unwrap();
+        println!("{}: {}", &filename, &index);
         let contents = files.get(&filename).unwrap();
         stack.push((filename, index + 1));
         if index == contents.len() {
