@@ -1,0 +1,8 @@
+[package]
+name = "expander"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = "1.12.2"
+bpaf = { version = "0.9.20", features = ["autocomplete", "derive"] }

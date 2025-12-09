@@ -1,7 +1,7 @@
 #pragma once
-#include "utility/assert.hpp"
-#include "utility/irange.hpp"
-#include "utility/priority_queue.hpp"
+#include "competitive/utility/assert.hpp"
+#include "competitive/utility/irange.hpp"
+#include "competitive/utility/priority_queue.hpp"
 #include <bits/stdc++.h>
 
 namespace common {
