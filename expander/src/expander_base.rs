@@ -21,6 +21,7 @@ pub fn expand(
     let mut count = 0;
     let mut output = vec![];
     let mut opened = HashSet::new();
+    let pragma_one = create_regex("^\\s*#\\s*pragma\\s+once");
     let include_a = create_regex("^\\s*#\\s*include\\s*\"([^\"]*)\"");
     let include_b = create_regex("^\\s*#\\s*include\\s*<([^>]*)>");
     let start_ifdef = create_regex("^\\s*#\\s*ifdef\\s+([[:word:]]+)");
@@ -29,7 +30,6 @@ pub fn expand(
     stack.push((basename, 0));
     while stack.len() != 0 {
         let (filename, index) = stack.pop().unwrap();
-        println!("{}: {}", &filename, &index);
         let contents = files.get(&filename).unwrap();
         stack.push((filename, index + 1));
         if index == contents.len() {
@@ -37,23 +37,29 @@ pub fn expand(
             continue;
         }
         let line = &contents[index];
-        if let Some(caps) = include_a.captures(&line) {
+        if pragma_one.is_match(&line) {
+            continue;
+        } else if let Some(caps) = include_a.captures(&line) {
             let filename = caps.get(1).unwrap().as_str().to_string();
-            if files.contains_key(&filename) {
-                if !opened.contains(&filename) {
-                    opened.insert(filename.clone());
-                    stack.push((filename, 0));
-                }
+            if opened.contains(&filename) {
                 continue;
+            } else {
+                opened.insert(filename.clone());
+                if files.contains_key(&filename) {
+                    stack.push((filename, 0));
+                    continue;
+                }
             }
         } else if let Some(caps) = include_b.captures(&line) {
             let filename = caps.get(1).unwrap().as_str().to_string();
-            if files.contains_key(&filename) {
-                if !opened.contains(&filename) {
-                    opened.insert(filename.clone());
-                    stack.push((filename, 0));
-                }
+            if opened.contains(&filename) {
                 continue;
+            } else {
+                opened.insert(filename.clone());
+                if files.contains_key(&filename) {
+                    stack.push((filename, 0));
+                    continue;
+                }
             }
         } else if let Some(caps) = start_ifdef.captures(&line) {
             let name = caps.get(1).unwrap().as_str().to_string();
@@ -332,5 +338,38 @@ mod tests {
         let files = HashMap::from([("main.cpp".to_string(), main.clone())]);
         let output = expand("main.cpp".into(), ignore, files);
         assert_eq!(output, main);
+    }
+    #[test]
+    fn remove_pramga_one() {
+        let basename = "main.cpp".to_string();
+        let ignore = HashSet::new();
+        let main = setup(vec![
+            "#include <bits/stdc++.h>",
+            "#include \"test.hpp\"",
+            "int main() {",
+            "  std::println(\"{}\", val);",
+            "}",
+        ]);
+        let sub = setup(vec![
+            "#pragma once",
+            "const int val = 10;",
+            "const int val2 = 20;",
+            "const int val3 = 30;",
+        ]);
+        let expected = setup(vec![
+            "#include <bits/stdc++.h>",
+            "const int val = 10;",
+            "const int val2 = 20;",
+            "const int val3 = 30;",
+            "int main() {",
+            "  std::println(\"{}\", val);",
+            "}",
+        ]);
+        let files = HashMap::from([
+            ("main.cpp".to_string(), main),
+            ("test.hpp".to_string(), sub),
+        ]);
+        let output = expand(basename, ignore, files);
+        assert_eq!(output, expected);
     }
 }

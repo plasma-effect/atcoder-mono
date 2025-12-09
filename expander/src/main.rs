@@ -2,7 +2,7 @@ use bpaf::Bpaf;
 use std::{
     collections::{HashMap, HashSet},
     fs::{self, File},
-    io::{self, BufWriter, Read, Write},
+    io::{self, Read, Write},
     path::PathBuf,
     vec,
 };
