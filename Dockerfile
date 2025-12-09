@@ -39,7 +39,6 @@ WORKDIR /workspace
 COPY ac-library ./ac-library
 COPY CMakeLists.txt .
 COPY include ./include
-COPY src ./src
 COPY unittest ./unittest
 
 RUN cmake -S . -B build/develop -DCOMPETITIVE_BUILD_MODE="Develop" \
