@@ -1,5 +1,7 @@
 #pragma once
 #include <future>
+#include <set>
+#include <vector>
 
 namespace test_utils {
 template <typename Func> auto async(Func func) {
@@ -21,5 +23,9 @@ bool operator==(uncopyable<T> const& lhs, uncopyable<T> const& rhs) {
 template <typename T>
 bool operator!=(uncopyable<T> const& lhs, uncopyable<T> const& rhs) {
   return lhs.value != rhs.value;
+}
+void connect(std::vector<std::set<int>>& edges, int i, int j) {
+  edges[i].emplace(j);
+  edges[j].emplace(i);
 }
 } // namespace test_utils

@@ -52,6 +52,9 @@ add_executable(data_structure_segtree_unittest data_structure/segtree.cpp)
 apply_common_options(data_structure_segtree_unittest)
 
 # algorithm
+add_executable(algorithm_get_tree_diam_unittest algorithm/get_tree_diam.cpp)
+apply_common_options(algorithm_get_tree_diam_unittest)
+
 add_executable(algorithm_rolling_hash_unittest algorithm/rolling_hash.cpp)
 apply_common_options(algorithm_rolling_hash_unittest)
 
