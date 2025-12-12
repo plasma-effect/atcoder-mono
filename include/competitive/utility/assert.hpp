@@ -8,6 +8,9 @@ inline int depth = 0;
 inline void output_location(std::source_location loc) {
   std::cerr << loc.function_name() << ": " << loc.line() << "\n";
 }
+inline std::source_location enter_location() {
+  return FROM;
+}
 [[noreturn]] constexpr void fail(const char* expr,
                                  std::source_location error_location) {
   std::cerr << "assertion failed: \"" << expr << "\"\n";
