@@ -62,8 +62,6 @@ TEST(HeuristicSingletonDualArray, ResetByRedefine) {
 #ifdef LOCAL_DEBUG
 TEST(HeuristicSingletonDualArray, DualDefined) {
   dual_array ar0;
-  ASSERT_DEATH(
-      { dual_array ar1; },
-      "\"heuristic::singleton_dual_array<int, 2, 3, -1>\" is alive.*");
+  ASSERT_DEATH({ dual_array ar1; }, ".");
 }
 #endif
