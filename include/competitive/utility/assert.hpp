@@ -22,7 +22,9 @@ inline std::source_location enter_location() {
   std::abort();
 }
 struct location {
-  constexpr location(std::source_location loc) {
+  int s;
+  constexpr location(std::source_location loc)
+      : s{std::is_constant_evaluated() ? 0 : 1} {
     if !consteval {
       if (depth++ == 0) {
         FROM = loc;
@@ -31,7 +33,7 @@ struct location {
   }
   constexpr ~location() {
     if !consteval {
-      --depth;
+      depth -= s;
     }
   }
   location(location const&) = delete;
