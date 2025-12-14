@@ -4,17 +4,18 @@
 #include <bits/stdc++.h>
 
 namespace competitive {
-namespace internal {
-template <typename T, std::size_t Cap> class static_stack_base {
+template <typename T, std::size_t Cap>
+class static_stack
+    : public internal::container_adaptor<T, static_stack<T, Cap>> {
   std::array<T, Cap> elems_;
   std::size_t size_ = 0;
 
 public:
-  static_stack_base() = default;
+  static_stack() = default;
 
-  void push(common::argument<T> v) {
+  void push_i(T&& v) {
     CL_ASSERT(size_ < Cap);
-    elems_[size_++] = std::move(v.value);
+    elems_[size_++] = std::move(v);
   }
   T pop(CL_FROM_LOCATION) {
     CL_ASSERT(size_ > 0);
@@ -27,8 +28,4 @@ public:
     size_ = 0;
   }
 };
-} // namespace internal
-template <typename T, std::size_t Cap>
-using static_stack =
-    internal::container_adaptor<T, internal::static_stack_base<T, Cap>>;
 } // namespace competitive
