@@ -6,7 +6,9 @@
 #endif
 
 namespace heuristic {
-template <typename T, int Cap, int id = -1> class singleton_static_queue {
+template <typename T, int Cap, int id = -1>
+class singleton_static_queue : public competitive::internal::container_adaptor<
+                                   T, singleton_static_queue<T, Cap, id>> {
   static inline competitive::static_queue<T, Cap> inside_;
 #ifdef LOCAL_DEBUG
   static inline std::optional<std::source_location> defined_;
@@ -27,8 +29,8 @@ public:
     }
 #endif
   }
-  void push(common::argument<T> v) {
-    inside_.push(std::move(v.value));
+  void push_i(T&& v) {
+    inside_.push(std::move(v));
   }
   T pop(CL_FROM_LOCATION) {
     return inside_.pop();
