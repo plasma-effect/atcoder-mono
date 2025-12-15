@@ -21,6 +21,15 @@ docker run --rm \
     -G Ninja \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+docker run --rm \
+  -v "${PROJECT_ROOT}:/workspace" \
+  -v "${BUILD_DIR}:/workspace/build" \
+  -v "${CCACHE_DIR}:/root/.ccache" \
+  ${IMAGE_NAME} \
+    cmake -S ac-library -B build/custom -DCMAKE_BUILD_TYPE="Custom" \
+    -G Ninja \
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
 docker run --rm \
   -v "${PROJECT_ROOT}:/workspace" \
@@ -28,8 +37,18 @@ docker run --rm \
   -v "${CCACHE_DIR}:/root/.ccache" \
   ${IMAGE_NAME} \
   cmake --build build/original --parallel
+docker run --rm \
+  -v "${PROJECT_ROOT}:/workspace" \
+  -v "${BUILD_DIR}:/workspace/build" \
+  -v "${CCACHE_DIR}:/root/.ccache" \
+  ${IMAGE_NAME} \
+  cmake --build build/custom --parallel
 
 docker run --rm  \
   -v "${BUILD_DIR}:/workspace/build" \
   ${IMAGE_NAME} \
   ctest --test-dir build/original --output-on-failure
+docker run --rm  \
+  -v "${BUILD_DIR}:/workspace/build" \
+  ${IMAGE_NAME} \
+  ctest --test-dir build/custom --output-on-failure
