@@ -39,7 +39,6 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          target: runner
           load: true
           tags: cpp-test
           cache-from: type=gha
