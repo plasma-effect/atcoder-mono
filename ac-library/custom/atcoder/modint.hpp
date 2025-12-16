@@ -11,18 +11,7 @@
 
 namespace atcoder {
 
-namespace internal {
-
-struct modint_base {};
-struct static_modint_base : modint_base {};
-
-template <class T> using is_modint = std::is_base_of<modint_base, T>;
-template <class T> using is_modint_t = std::enable_if_t<is_modint<T>::value>;
-
-}  // namespace internal
-
-template <int m, std::enable_if_t<(1 <= m)>* = nullptr>
-struct static_modint : internal::static_modint_base {
+template <int m, std::enable_if_t<(1 <= m)>* = nullptr> struct static_modint {
     using mint = static_modint;
 
   public:
@@ -133,7 +122,7 @@ struct static_modint : internal::static_modint_base {
     static constexpr bool prime = internal::is_prime<m>;
 };
 
-template <int id> struct dynamic_modint : internal::modint_base {
+template <int id> struct dynamic_modint {
     using mint = dynamic_modint;
 
   public:
@@ -248,15 +237,15 @@ using modint = dynamic_modint<-1>;
 
 namespace internal {
 
-template <class T>
-using is_static_modint = std::is_base_of<internal::static_modint_base, T>;
+template <typename> struct is_static_modint : std::false_type {};
+template <int m> struct is_static_modint<static_modint<m>> : std::true_type {};
 
 template <class T>
 using is_static_modint_t = std::enable_if_t<is_static_modint<T>::value>;
 
-template <class> struct is_dynamic_modint : public std::false_type {};
+template <class> struct is_dynamic_modint : std::false_type {};
 template <int id>
-struct is_dynamic_modint<dynamic_modint<id>> : public std::true_type {};
+struct is_dynamic_modint<dynamic_modint<id>> : std::true_type {};
 
 template <class T>
 using is_dynamic_modint_t = std::enable_if_t<is_dynamic_modint<T>::value>;

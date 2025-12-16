@@ -232,7 +232,7 @@ std::vector<mint> convolution(std::vector<mint>&& a,
 #endif
 
     if (std::min(n, m) <= 60)
-        return convolution_naive(std::move(a), std::move(b));
+        return internal::convolution_naive(std::move(a), std::move(b));
     return internal::convolution_fft(std::move(a), std::move(b));
 }
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
@@ -245,7 +245,7 @@ std::vector<mint> convolution(const std::vector<mint>& a,
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
     ACL_ASSERT((mint::mod() - 1) % z == 0);
 
-    if (std::min(n, m) <= 60) return convolution_naive(a, b);
+    if (std::min(n, m) <= 60) return internal::convolution_naive(a, b);
     return internal::convolution_fft(a, b);
 }
 

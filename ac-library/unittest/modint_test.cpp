@@ -12,31 +12,24 @@ ll gcd(ll a, ll b) {
     return gcd(b, a % b);
 }
 
-static_assert(internal::is_modint<static_modint<1>>::value, "");
-static_assert(internal::is_modint<static_modint<998244353>>::value, "");
-static_assert(internal::is_modint<modint>::value, "");
-static_assert(internal::is_modint<dynamic_modint<0>>::value, "");
-static_assert(!internal::is_modint<int>::value, "");
+static_assert(internal::is_static_modint<static_modint<1>>::value);
+static_assert(internal::is_static_modint<static_modint<998244353>>::value);
+static_assert(internal::is_static_modint<modint998244353>::value);
+static_assert(internal::is_static_modint<modint1000000007>::value);
+static_assert(!internal::is_static_modint<modint>::value);
+static_assert(!internal::is_static_modint<dynamic_modint<0>>::value);
+static_assert(!internal::is_static_modint<int>::value);
 
-static_assert(internal::is_static_modint<static_modint<1>>::value, "");
-static_assert(internal::is_static_modint<static_modint<998244353>>::value, "");
-static_assert(internal::is_static_modint<modint998244353>::value, "");
-static_assert(internal::is_static_modint<modint1000000007>::value, "");
-static_assert(!internal::is_static_modint<modint>::value, "");
-static_assert(!internal::is_static_modint<dynamic_modint<0>>::value, "");
-static_assert(!internal::is_static_modint<int>::value, "");
+static_assert(!internal::is_dynamic_modint<static_modint<1>>::value);
+static_assert(!internal::is_dynamic_modint<static_modint<998244353>>::value);
+static_assert(internal::is_dynamic_modint<modint>::value);
+static_assert(internal::is_dynamic_modint<dynamic_modint<0>>::value);
+static_assert(!internal::is_dynamic_modint<int>::value);
 
-static_assert(!internal::is_dynamic_modint<static_modint<1>>::value, "");
-static_assert(!internal::is_dynamic_modint<static_modint<998244353>>::value,
-              "");
-static_assert(internal::is_dynamic_modint<modint>::value, "");
-static_assert(internal::is_dynamic_modint<dynamic_modint<0>>::value, "");
-static_assert(!internal::is_dynamic_modint<int>::value, "");
+static_assert(std::is_same<modint, dynamic_modint<-1>>::value);
 
-static_assert(std::is_same<modint, dynamic_modint<-1>>::value, "");
-
-static_assert(modint998244353::mod() == 998244353, "");
-static_assert(modint1000000007::mod() == 1000000007, "");
+static_assert(modint998244353::mod() == 998244353);
+static_assert(modint1000000007::mod() == 1000000007);
 
 TEST(ModintTest, DynamicBorder) {
     using mint = modint;
