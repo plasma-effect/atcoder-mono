@@ -14,7 +14,7 @@ jobs:
 
       - name: Detect change files
         id: changed
-        uses: tj-actions/changed-files@v4
+        uses: tj-actions/changed-files@v47
 
       - name: Set flags
         id: flags
@@ -39,24 +39,17 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          target: runner
           load: true
-          tags: cpp-test:latest
+          tags: cpp-test
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
       - name: Run AC-Library Test
         if: ${{ steps.flags.outputs.run_ACL == 'true' }}
         run: |
-          docker run --rm cpp-test:latest \
-            bash -c "ctest --test-dir build/original --output-on-failure"
-          docker run --rm cpp-test:latest \
-            bash -c "ctest --test-dir build/custom  --output-on-failure"
+          ./scripts/run-acl-tests.sh
 
       - name: Run Competitive-Library Test
         if: ${{ steps.flags.outputs.run_Competitive == 'true' }}
         run: |
-          docker run --rm cpp-test:latest \
-            bash -c "ctest --test-dir build/develop  --output-on-failure"
-          docker run --rm cpp-test:latest \
-            bash -c "ctest --test-dir build/release  --output-on-failure"
+          ./scripts/run-competitive-tests.sh
