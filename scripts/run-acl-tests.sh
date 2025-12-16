@@ -7,8 +7,6 @@ PROJECT_ROOT=$(pwd)
 BUILD_DIR="${PROJECT_ROOT}/build"
 CCACHE_DIR="${HOME}/.ccache"
 
-docker build -t ${IMAGE_NAME} "${PROJECT_ROOT}"
-
 mkdir -p "${BUILD_DIR}"
 mkdir -p "${CCACHE_DIR}"
 
