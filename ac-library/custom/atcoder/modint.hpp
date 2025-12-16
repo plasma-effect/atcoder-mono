@@ -34,14 +34,12 @@ struct static_modint : internal::static_modint_base {
     }
 
     static_modint() : _v(0) {}
-    template <class T, internal::is_signed_int_t<T>* = nullptr>
-    static_modint(T v) {
+    template <internal::signed_integral T> static_modint(T v) {
         long long x = (long long)(v % (long long)(umod()));
         if (x < 0) x += umod();
         _v = (unsigned int)(x);
     }
-    template <class T, internal::is_unsigned_int_t<T>* = nullptr>
-    static_modint(T v) {
+    template <internal::unsigned_integral T> static_modint(T v) {
         _v = (unsigned int)(v % umod());
     }
 
@@ -151,14 +149,12 @@ template <int id> struct dynamic_modint : internal::modint_base {
     }
 
     dynamic_modint() : _v(0) {}
-    template <class T, internal::is_signed_int_t<T>* = nullptr>
-    dynamic_modint(T v) {
+    template <internal::signed_integral T> dynamic_modint(T v) {
         long long x = (long long)(v % (long long)(mod()));
         if (x < 0) x += mod();
         _v = (unsigned int)(x);
     }
-    template <class T, internal::is_unsigned_int_t<T>* = nullptr>
-    dynamic_modint(T v) {
+    template <internal::unsigned_integral T> dynamic_modint(T v) {
         _v = (unsigned int)(v % mod());
     }
 

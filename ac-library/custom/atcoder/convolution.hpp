@@ -249,9 +249,7 @@ std::vector<mint> convolution(const std::vector<mint>& a,
     return internal::convolution_fft(a, b);
 }
 
-template <unsigned int mod = 998244353,
-          class T,
-          std::enable_if_t<internal::is_integral<T>::value>* = nullptr>
+template <unsigned int mod = 998244353, internal::integral T>
 std::vector<T> convolution(const std::vector<T>& a,
                            const std::vector<T>& b,
                            ACL_FROM_LOCATION) {
