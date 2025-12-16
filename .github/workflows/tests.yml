@@ -14,7 +14,7 @@ jobs:
 
       - name: Detect change files
         id: changed
-        uses: tj-actions/changed-files@v4
+        uses: tj-actions/changed-files@v47
 
       - name: Set flags
         id: flags
