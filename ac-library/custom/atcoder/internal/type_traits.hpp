@@ -9,19 +9,13 @@ namespace atcoder {
 
 namespace internal {
 
-template <class T>
-using is_signed_int128 =
-    typename std::conditional<std::is_same<T, __int128_t>::value ||
-                                  std::is_same<T, __int128>::value,
-                              std::true_type,
-                              std::false_type>::type;
+template <typename T>
+concept signed_int128 =
+    std::is_same_v<T, __int128_t> || std::is_same_v<T, __int128>;
 
-template <class T>
-using is_unsigned_int128 =
-    typename std::conditional<std::is_same<T, __uint128_t>::value ||
-                                  std::is_same<T, unsigned __int128>::value,
-                              std::true_type,
-                              std::false_type>::type;
+template <typename T>
+concept unsigned_int128 =
+    std::is_same_v<T, __uint128_t> || std::is_same_v<T, unsigned __int128>;
 
 template <class T>
 using make_unsigned_int128 =
@@ -29,41 +23,27 @@ using make_unsigned_int128 =
                               __uint128_t,
                               unsigned __int128>;
 
-template <class T>
-using is_integral = typename std::conditional<std::is_integral<T>::value ||
-                                                  is_signed_int128<T>::value ||
-                                                  is_unsigned_int128<T>::value,
-                                              std::true_type,
-                                              std::false_type>::type;
+template <typename T>
+concept integral = std::integral<T> || signed_int128<T> || unsigned_int128<T>;
 
-template <class T>
-using is_signed_int = typename std::conditional<(is_integral<T>::value &&
-                                                 std::is_signed<T>::value) ||
-                                                    is_signed_int128<T>::value,
-                                                std::true_type,
-                                                std::false_type>::type;
+template <typename T>
+concept signed_integral = std::signed_integral<T> || signed_int128<T>;
 
-template <class T>
-using is_unsigned_int =
-    typename std::conditional<(is_integral<T>::value &&
-                               std::is_unsigned<T>::value) ||
-                                  is_unsigned_int128<T>::value,
-                              std::true_type,
-                              std::false_type>::type;
+template <typename T>
+concept unsigned_integral = std::unsigned_integral<T> || unsigned_int128<T>;
 
 template <class T>
 using to_unsigned = typename std::conditional<
-    is_signed_int128<T>::value,
+    signed_int128<T>,
     make_unsigned_int128<T>,
     typename std::conditional<std::is_signed<T>::value,
                               std::make_unsigned<T>,
                               std::common_type<T>>::type>::type;
 
-template <class T>
-using is_signed_int_t = std::enable_if_t<is_signed_int<T>::value>;
+template <class T> using is_signed_int_t = std::enable_if_t<signed_integral<T>>;
 
 template <class T>
-using is_unsigned_int_t = std::enable_if_t<is_unsigned_int<T>::value>;
+using is_unsigned_int_t = std::enable_if_t<unsigned_integral<T>>;
 
 template <class T> using to_unsigned_t = typename to_unsigned<T>::type;
 

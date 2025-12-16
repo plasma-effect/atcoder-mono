@@ -34,9 +34,13 @@ std::vector<mint> conv_naive(std::vector<mint> a, std::vector<mint> b) {
     return c;
 }
 
+#ifdef LOCAL_DEBUG
+template <int MOD, internal::integral T>
+#else
 template <int MOD,
           class T,
           std::enable_if_t<internal::is_integral<T>::value>* = nullptr>
+#endif
 std::vector<T> conv_naive(std::vector<T> a, std::vector<T> b) {
     int n = int(a.size()), m = int(b.size());
     std::vector<T> c(n + m - 1);
