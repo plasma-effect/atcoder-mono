@@ -68,6 +68,14 @@ TEST(NormalPrint, TupleVector) {
   EXPECT_EQ(GetCapturedStdout(), "1 2 3 4 5 6\n");
 }
 
+TEST(NormalPrint, EmptyVector) {
+  CaptureStdout();
+  std::vector<int> vec = {};
+  common::println(vec);
+  std::cout << std::flush;
+  EXPECT_EQ(GetCapturedStdout(), "\n");
+}
+
 TEST(NormalPrint, UseManip) {
   CaptureStdout();
   common::println(std::boolalpha, true);

@@ -61,6 +61,14 @@ TEST(DebugPrint, TupleVector) {
   EXPECT_EQ(GetCapturedStderr(), "{(1, 2, 3), (4, 5, 6)}\n");
 }
 
+TEST(DebugPrint, EmptyVector) {
+  CaptureStderr();
+  std::vector<int> vec = {};
+  common::debug::println(vec);
+  std::cout << std::flush;
+  EXPECT_EQ(GetCapturedStderr(), "{}\n");
+}
+
 TEST(DebugPrint, UseManip) {
   CaptureStderr();
   common::debug::println(std::boolalpha, true);
@@ -69,9 +77,9 @@ TEST(DebugPrint, UseManip) {
 
 TEST(DebugPrint, DebugPrintMacro) {
   CaptureStderr();
-  DEBUG_PRINT(1, 2);
+  [[maybe_unused]] int line = (DEBUG_PRINT(1, 2), __LINE__);
 #ifdef LOCAL_DEBUG
-  EXPECT_EQ(GetCapturedStderr(), "72: 1 2\n");
+  EXPECT_EQ(GetCapturedStderr(), std::format("{}: 1 2\n", line));
 #else
   EXPECT_EQ(GetCapturedStderr(), "");
 #endif
@@ -79,9 +87,9 @@ TEST(DebugPrint, DebugPrintMacro) {
 
 TEST(DebugPrint, DebugPrintMacroNone) {
   CaptureStderr();
-  DEBUG_PRINT();
+  [[maybe_unused]] int line = (DEBUG_PRINT(), __LINE__);
 #ifdef LOCAL_DEBUG
-  EXPECT_EQ(GetCapturedStderr(), "82:\n");
+  EXPECT_EQ(GetCapturedStderr(), std::format("{}:\n", line));
 #else
   EXPECT_EQ(GetCapturedStderr(), "");
 #endif
