@@ -50,7 +50,8 @@ public:
     ost << v;
   }
   template <std::input_iterator It> void print_ite(It first, It last) {
-    const char* d = rng_prefix;
+    ost << rng_prefix;
+    const char* d = "";
     for (; first != last; ++first) {
       ost << std::exchange(d, rng_delim);
       *this << *first;
