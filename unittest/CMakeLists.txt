@@ -51,6 +51,9 @@ apply_common_options(data_structure_min_max_heap_unittest)
 add_executable(data_structure_segtree_unittest data_structure/segtree.cpp)
 apply_common_options(data_structure_segtree_unittest)
 
+add_executable(data_structure_static_dsu_unittest data_structure/static_dsu.cpp)
+apply_common_options(data_structure_static_dsu_unittest)
+
 # algorithm
 add_executable(algorithm_get_tree_diam_unittest algorithm/get_tree_diam.cpp)
 apply_common_options(algorithm_get_tree_diam_unittest)
