@@ -7,8 +7,8 @@ fn create_regex(r: &str) -> Regex {
 
 enum BlockAction {
     NONE,
-    YetElse,
-    DoneElse,
+    YetElse(i32),
+    DoneElse(i32),
 }
 
 pub fn expand(
@@ -25,6 +25,8 @@ pub fn expand(
     let include_a = create_regex("^\\s*#\\s*include\\s*\"([^\"]*)\"");
     let include_b = create_regex("^\\s*#\\s*include\\s*<([^>]*)>");
     let start_ifdef = create_regex("^\\s*#\\s*ifdef\\s+([[:word:]]+)");
+    let start_ifndef = create_regex("^\\s*#\\s*ifndef\\s+([[:word:]]+)");
+    let start_if = create_regex("^\\s*#\\s*if\\s+");
     let else_ifdef = create_regex("^\\s*#\\s*else");
     let end_ifdef = create_regex("^\\s*#\\s*endif");
     stack.push((basename, 0));
@@ -65,20 +67,31 @@ pub fn expand(
             let name = caps.get(1).unwrap().as_str().to_string();
             if ignore_blocks.contains(&name) {
                 count += 1;
-                blocks.push((name, BlockAction::YetElse));
+                blocks.push((name, BlockAction::YetElse(1)));
                 continue;
             } else {
                 blocks.push((name, BlockAction::NONE));
             }
+        } else if let Some(caps) = start_ifndef.captures(&line) {
+            let name = caps.get(1).unwrap().as_str().to_string();
+            if ignore_blocks.contains(&name) {
+                blocks.push((name, BlockAction::YetElse(0)));
+                continue;
+            } else {
+                blocks.push((name, BlockAction::NONE));
+            }
+        } else if let Some(_) = start_if.captures(&line) {
+            blocks.push(("".into(), BlockAction::NONE));
         } else if else_ifdef.is_match(&line) {
             let (_, a) = blocks.pop().unwrap();
             match a {
                 BlockAction::NONE => {
                     blocks.push(("".to_string(), BlockAction::NONE));
                 }
-                BlockAction::YetElse => {
-                    count -= 1;
-                    blocks.push(("".to_string(), BlockAction::DoneElse));
+                BlockAction::YetElse(v) => {
+                    count -= v;
+                    count += 1 - v;
+                    blocks.push(("".to_string(), BlockAction::DoneElse(1 - v)));
                     continue;
                 }
                 _ => {
@@ -92,11 +105,12 @@ pub fn expand(
         } else if end_ifdef.is_match(&line) {
             let (_, a) = blocks.pop().unwrap();
             match a {
-                BlockAction::YetElse => {
-                    count -= 1;
+                BlockAction::YetElse(v) => {
+                    count -= v;
                     continue;
                 }
-                BlockAction::DoneElse => {
+                BlockAction::DoneElse(v) => {
+                    count -= v;
                     continue;
                 }
                 _ => {}
@@ -326,6 +340,122 @@ mod tests {
         let main = setup(vec![
             "#include <print>",
             "#ifdef NDEBUG",
+            "#define ASSERT(...)",
+            "#else",
+            "#define ASSERT(...) void(0)",
+            "#endif",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let ignore = HashSet::from(["LOCAL_DEBUG".into()]);
+        let files = HashMap::from([("main.cpp".to_string(), main.clone())]);
+        let output = expand("main.cpp".into(), ignore, files);
+        assert_eq!(output, main);
+    }
+    #[test]
+    fn remove_ifndef() {
+        let main = setup(vec![
+            "#include <print>",
+            "#ifndef LOCAL_DEBUG",
+            "static_assert(true);",
+            "#endif",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let ignore = HashSet::from(["LOCAL_DEBUG".into()]);
+        let files = HashMap::from([("main.cpp".to_string(), main)]);
+        let expected = setup(vec![
+            "#include <print>",
+            "static_assert(true);",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let output = expand("main.cpp".into(), ignore, files);
+        assert_eq!(output, expected);
+    }
+    #[test]
+    fn remove_ifndef_else() {
+        let main = setup(vec![
+            "#include <print>",
+            "#ifndef LOCAL_DEBUG",
+            "static_assert(true);",
+            "#else",
+            "static_assert(false);",
+            "#endif",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let ignore = HashSet::from(["LOCAL_DEBUG".into()]);
+        let files = HashMap::from([("main.cpp".to_string(), main)]);
+        let expected = setup(vec![
+            "#include <print>",
+            "static_assert(true);",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let output = expand("main.cpp".into(), ignore, files);
+        assert_eq!(output, expected);
+    }
+    #[test]
+    fn ignore_ifndef() {
+        let main = setup(vec![
+            "#include <print>",
+            "#ifndef NDEBUG",
+            "#define ASSERT(...)",
+            "#endif",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let ignore = HashSet::from(["LOCAL_DEBUG".into()]);
+        let files = HashMap::from([("main.cpp".to_string(), main.clone())]);
+        let output = expand("main.cpp".into(), ignore, files);
+        assert_eq!(output, main);
+    }
+    #[test]
+    fn ignore_ifndef_else() {
+        let main = setup(vec![
+            "#include <print>",
+            "#ifndef NDEBUG",
+            "#define ASSERT(...)",
+            "#else",
+            "#define ASSERT(...) void(0)",
+            "#endif",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let ignore = HashSet::from(["LOCAL_DEBUG".into()]);
+        let files = HashMap::from([("main.cpp".to_string(), main.clone())]);
+        let output = expand("main.cpp".into(), ignore, files);
+        assert_eq!(output, main);
+    }
+    #[test]
+    fn ignore_if() {
+        let main = setup(vec![
+            "#include <print>",
+            "#if !defined(NDEBUG)",
+            "#define ASSERT(...)",
+            "#endif",
+            "int main() {",
+            "  std::println(\"Hello World\");",
+            "}",
+        ]);
+        let ignore = HashSet::from(["LOCAL_DEBUG".into()]);
+        let files = HashMap::from([("main.cpp".to_string(), main.clone())]);
+        let output = expand("main.cpp".into(), ignore, files);
+        assert_eq!(output, main);
+    }
+    #[test]
+    fn ignore_if_else() {
+        let main = setup(vec![
+            "#include <print>",
+            "#if !defined(NDEBUG)",
             "#define ASSERT(...)",
             "#else",
             "#define ASSERT(...) void(0)",
