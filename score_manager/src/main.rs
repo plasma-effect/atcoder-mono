@@ -189,28 +189,44 @@ fn rscore(score: i64) -> f64 {
     if score == 0 { 0.0 } else { (score as f64).ln() }
 }
 
-fn print_compare_results_rel(path: &PathBuf, mut compare_results: Vec<(&String, f64, i64, i64)>) {
+fn print_compare_results_rel(
+    path: &PathBuf,
+    mut compare_results: Vec<(&String, f64, i64, i64)>,
+    targets: &HashMap<String, i64>,
+) {
     let mut cmpf = File::create(path).unwrap();
     compare_results.sort_by(|a, b| a.0.cmp(b.0));
     for (name, d, score, best) in compare_results {
         let relscore = rscore(score);
         let relbest = rscore(best);
-        writeln!(
-            &mut cmpf,
-            "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
-            name, d, relscore, score, relbest, best
-        )
-        .unwrap();
+        if let Some(target) = targets.get(name) {
+            let reltarget = rscore(*target);
+            writeln!(
+                &mut cmpf,
+                "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {}))",
+                name, d, relscore, score, relbest, best, reltarget, target
+            )
+            .unwrap();
+        } else {
+            writeln!(
+                &mut cmpf,
+                "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
+                name, d, relscore, score, relbest, best
+            )
+            .unwrap();
+        }
     }
 }
 
 fn relative_check(
     results: &HashMap<String, i64>,
     bests: &mut HashMap<String, i64>,
+    targets: &HashMap<String, i64>,
     setting: &Setting,
 ) -> io::Result<()> {
     let mut sum: f64 = 0.0;
     let mut ranking = vec![];
+    let mut vs_target = vec![];
     let mut compare_results = vec![];
     let increase = setting.increase;
     for (name, score) in results {
@@ -223,8 +239,12 @@ fn relative_check(
         let d = -(relscore - relbest).abs();
         ranking.push((d, name.clone()));
         compare_results.push((name, d, *score, bests[name]));
+        if let Some(target) = targets.get(name) {
+            let d = relscore - rscore(*target);
+            vs_target.push((-d.abs(), name.clone()));
+        }
     }
-    print_compare_results_rel(&setting.compare, compare_results);
+    print_compare_results_rel(&setting.compare, compare_results, &targets);
     let best: f64 = read_best(&setting.best, increase).parse().unwrap();
     if compare(sum, best, increase) {
         println!("update the best score by {:.3}", (best - sum).abs());
@@ -238,7 +258,26 @@ fn relative_check(
             (sum - best).abs()
         );
     }
+    if targets.len() != 0 {
+        let mut target = 0.0;
+        for (_, t) in targets {
+            target += rscore(*t);
+        }
+        println!(
+            "vs target (diff = {:.3}, target = {:.3})",
+            (target - sum).abs(),
+            target
+        );
+    }
     ranking.sort_by(|(a0, a1), (b0, b1)| {
+        if let Some(r) = a0.partial_cmp(b0)
+            && r.is_ne()
+        {
+            return r;
+        }
+        return a1.cmp(b1);
+    });
+    vs_target.sort_by(|(a0, a1), (b0, b1)| {
         if let Some(r) = a0.partial_cmp(b0)
             && r.is_ne()
         {
@@ -261,6 +300,25 @@ fn relative_check(
             best
         );
     }
+    if vs_target.len() != 0 {
+        println!("vs target");
+        for (d, name) in vs_target.iter().take(5) {
+            let score = results[name];
+            let best = bests[name];
+            let target = targets[name];
+            println!(
+                "  {}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {})",
+                name,
+                d,
+                rscore(score),
+                score,
+                rscore(best),
+                best,
+                rscore(target),
+                target
+            );
+        }
+    }
     Ok(())
 }
 
@@ -272,10 +330,11 @@ fn main() -> io::Result<()> {
     let setting: Setting = serde_json::from_str(&setting).unwrap();
     let results = read_results(&setting.input, &setting.output, &setting.vis)?;
     let mut bests = read_file_or_default(&setting.best_detail);
+    let targets = read_file_or_default(&setting.target);
     if !setting.relative {
         absolute_check(&results, &mut bests, &setting)?;
     } else {
-        relative_check(&results, &mut bests, &setting)?;
+        relative_check(&results, &mut bests, &targets, &setting)?;
     }
     let mut f = File::create(setting.best_detail).unwrap();
     for (name, score) in bests {
