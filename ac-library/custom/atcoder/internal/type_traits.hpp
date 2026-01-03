@@ -40,11 +40,6 @@ using to_unsigned = typename std::conditional<
                               std::make_unsigned<T>,
                               std::common_type<T>>::type>::type;
 
-template <class T> using is_signed_int_t = std::enable_if_t<signed_integral<T>>;
-
-template <class T>
-using is_unsigned_int_t = std::enable_if_t<unsigned_integral<T>>;
-
 template <class T> using to_unsigned_t = typename to_unsigned<T>::type;
 
 }  // namespace internal

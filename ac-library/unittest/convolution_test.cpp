@@ -22,7 +22,11 @@ std::vector<ll> conv_ll_naive(std::vector<ll> a, std::vector<ll> b) {
     return c;
 }
 
+#ifdef LOCAL_DEBUG
+template <internal::static_modint_t mint>
+#else
 template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+#endif
 std::vector<mint> conv_naive(std::vector<mint> a, std::vector<mint> b) {
     int n = int(a.size()), m = int(b.size());
     std::vector<mint> c(n + m - 1);
