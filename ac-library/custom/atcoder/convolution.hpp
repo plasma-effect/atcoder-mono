@@ -15,9 +15,8 @@ namespace atcoder {
 
 namespace internal {
 
-template <class mint,
-          int g = internal::primitive_root<mint::mod()>,
-          internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint,
+          int g = internal::primitive_root<mint::mod()>>
 struct fft_info {
     static constexpr int rank2 =
         std::countr_zero((unsigned int)(mint::mod() - 1));
@@ -59,7 +58,7 @@ struct fft_info {
     }
 };
 
-template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint>
 void butterfly(std::vector<mint>& a, ACL_FROM_LOCATION) {
     int n = int(a.size());
     int h = std::countr_zero((unsigned int)n);
@@ -113,7 +112,7 @@ void butterfly(std::vector<mint>& a, ACL_FROM_LOCATION) {
     }
 }
 
-template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint>
 void butterfly_inv(std::vector<mint>& a, ACL_FROM_LOCATION) {
     int n = int(a.size());
     int h = std::countr_zero((unsigned int)n);
@@ -176,7 +175,7 @@ void butterfly_inv(std::vector<mint>& a, ACL_FROM_LOCATION) {
     }
 }
 
-template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint>
 std::vector<mint> convolution_naive(const std::vector<mint>& a,
                                     const std::vector<mint>& b) {
     int n = int(a.size()), m = int(b.size());
@@ -197,7 +196,7 @@ std::vector<mint> convolution_naive(const std::vector<mint>& a,
     return ans;
 }
 
-template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint>
 std::vector<mint> convolution_fft(std::vector<mint> a,
                                   std::vector<mint> b,
                                   ACL_FROM_LOCATION) {
@@ -219,7 +218,7 @@ std::vector<mint> convolution_fft(std::vector<mint> a,
 
 }  // namespace internal
 
-template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint>
 std::vector<mint> convolution(std::vector<mint>&& a,
                               std::vector<mint>&& b,
                               ACL_FROM_LOCATION) {
@@ -235,7 +234,7 @@ std::vector<mint> convolution(std::vector<mint>&& a,
         return internal::convolution_naive(std::move(a), std::move(b));
     return internal::convolution_fft(std::move(a), std::move(b));
 }
-template <class mint, internal::is_static_modint_t<mint>* = nullptr>
+template <internal::static_modint_t mint>
 std::vector<mint> convolution(const std::vector<mint>& a,
                               const std::vector<mint>& b,
                               ACL_FROM_LOCATION) {

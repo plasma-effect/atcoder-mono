@@ -11,7 +11,8 @@
 
 namespace atcoder {
 
-template <int m, std::enable_if_t<(1 <= m)>* = nullptr> struct static_modint {
+template <int m> struct static_modint {
+    static_assert(m >= 1);
     using mint = static_modint;
 
   public:
@@ -240,15 +241,8 @@ namespace internal {
 template <typename> struct is_static_modint : std::false_type {};
 template <int m> struct is_static_modint<static_modint<m>> : std::true_type {};
 
-template <class T>
-using is_static_modint_t = std::enable_if_t<is_static_modint<T>::value>;
-
-template <class> struct is_dynamic_modint : std::false_type {};
-template <int id>
-struct is_dynamic_modint<dynamic_modint<id>> : std::true_type {};
-
-template <class T>
-using is_dynamic_modint_t = std::enable_if_t<is_dynamic_modint<T>::value>;
+template <typename T>
+concept static_modint_t = is_static_modint<T>::value;
 
 }  // namespace internal
 
