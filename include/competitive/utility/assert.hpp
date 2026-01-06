@@ -39,10 +39,11 @@ struct location {
   location(location const&) = delete;
   location(location&&) = delete;
 };
-#define CL_ASSERT(expr)                                                        \
-  (static_cast<bool>(expr) ? void(0)                                           \
-                           : common::debug::internal::fail(                    \
-                                 #expr, std::source_location::current()))
+#define CL_ASSERT(...)                                                         \
+  (static_cast<bool>(__VA_ARGS__)                                              \
+       ? void(0)                                                               \
+       : common::debug::internal::fail(#__VA_ARGS__,                           \
+                                       std::source_location::current()))
 #else
 struct location {
   constexpr location(std::source_location) {}
@@ -50,7 +51,7 @@ struct location {
   location(location const&) = delete;
   location(location&&) = delete;
 };
-#define CL_ASSERT(expr) assert(expr)
+#define CL_ASSERT(...) assert((__VA_ARGS__))
 #endif
 } // namespace common::debug::internal
 #define CL_FROM_LOCATION                                                       \
