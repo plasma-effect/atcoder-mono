@@ -51,7 +51,9 @@ struct location {
   location(location const&) = delete;
   location(location&&) = delete;
 };
-#define CL_ASSERT(...) assert((__VA_ARGS__))
+#define CL_ASSERT(...)                                                         \
+  assert(__VA_ARGS__);                                                         \
+  [[assume((__VA_ARGS__))]]
 #endif
 } // namespace common::debug::internal
 #define CL_FROM_LOCATION                                                       \
