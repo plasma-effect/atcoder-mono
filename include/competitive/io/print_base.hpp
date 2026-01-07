@@ -88,6 +88,11 @@ public:
       ost << "<nullopt>";
     }
   }
+  void operator<<(std::source_location const& loc) {
+    *this << loc.function_name();
+    *this << ": ";
+    *this << loc.line();
+  }
   std::array<const char*, 3> get_range_decolater() {
     return {
         rng_prefix,

@@ -14,12 +14,30 @@ inline std::source_location enter_location() {
 }
 [[noreturn]] constexpr void fail(const char* expr,
                                  std::source_location error_location) {
-  std::cerr << "assertion failed: \"" << expr << "\"\n";
-  std::cerr << "where: ";
-  output_location(error_location);
-  std::cerr << " from: ";
-  output_location(FROM);
-  std::cerr << std::flush;
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println("where:", error_location);
+  common::debug::println(" from:", FROM);
+  std::abort();
+}
+template <typename T0>
+[[noreturn]] constexpr void fail(const char* expr,
+                                 std::source_location error_location,
+                                 const char* name0, T0 const& value0) {
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println(" ", name0, "=", value0);
+  common::debug::println("where:", error_location);
+  common::debug::println(" from:", FROM);
+  std::abort();
+}
+template <typename T0, typename T1>
+[[noreturn]] constexpr void
+fail(const char* expr, std::source_location error_location, const char* name0,
+     T0 const& value0, const char* name1, T1 const& value1) {
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println(" ", name0, "=", value0);
+  common::debug::println(" ", name1, "=", value1);
+  common::debug::println("where:", error_location);
+  common::debug::println(" from:", FROM);
   std::abort();
 }
 struct location {
@@ -45,44 +63,17 @@ struct location {
        ? void(0)                                                               \
        : common::debug::internal::fail(#__VA_ARGS__,                           \
                                        std::source_location::current()))
-template <typename T>
-[[noreturn]] constexpr void fail(const char* expr, const char* name,
-                                 T const& value,
-                                 std::source_location error_location) {
-  common::debug::println("assertion failed:", std::quoted(expr));
-  common::debug::println(" ", name, "=", value);
-  std::cerr << "where: ";
-  output_location(error_location);
-  std::cerr << " from: ";
-  output_location(FROM);
-  std::cerr << std::flush;
-  std::abort();
-}
-template <typename T0, typename T1>
-[[noreturn]] constexpr void
-fail(const char* expr, const char* name0, T0 const& value0, const char* name1,
-     T1 const& value1, std::source_location error_location) {
-  common::debug::println("assertion failed:", std::quoted(expr));
-  common::debug::println(" ", name0, "=", value0);
-  common::debug::println(" ", name1, "=", value1);
-  std::cerr << "where: ";
-  output_location(error_location);
-  std::cerr << " from: ";
-  output_location(FROM);
-  std::cerr << std::flush;
-  std::abort();
-}
 #define CL_VALUE_EXPECT_1(value, ...)                                          \
   (static_cast<bool>(__VA_ARGS__)                                              \
        ? void(0)                                                               \
-       : common::debug::internal::fail(#__VA_ARGS__, #value, value,            \
-                                       std::source_location::current()))
+       : common::debug::internal::fail(                                        \
+             #__VA_ARGS__, std::source_location::current(), #value, value))
 #define CL_VALUE_EXPECT_2(value0, value1, ...)                                 \
   (static_cast<bool>(__VA_ARGS__)                                              \
        ? void(0)                                                               \
-       : common::debug::internal::fail(#__VA_ARGS__, #value0, value0, #value1, \
-                                       value1,                                 \
-                                       std::source_location::current()))
+       : common::debug::internal::fail(#__VA_ARGS__,                           \
+                                       std::source_location::current(),        \
+                                       #value0, value0, #value1, value1))
 
 #else
 struct location {
