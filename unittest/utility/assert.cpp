@@ -8,3 +8,10 @@ TEST(Assertion, Macro) {
   CL_ASSERT(true);
   ASSERT_DEATH(CL_ASSERT(false), ".");
 }
+
+TEST(ArgumentWrapper, DebugPrint) {
+  common::argument<int> arg = 1;
+  testing::internal::CaptureStderr();
+  common::debug::println(arg);
+  EXPECT_EQ(testing::internal::GetCapturedStderr(), "1\n");
+}

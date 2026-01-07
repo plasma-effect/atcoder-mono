@@ -25,7 +25,7 @@ public:
     return static_cast<int>(it - values_.begin());
   }
   T const& get_value(common::argument<int> i) const {
-    CL_VALUE_EXPECT_1(i.value, 0 <= i.value && i.value < size());
+    CL_VALUE_EXPECT_1(i, 0 <= i.value && i.value < size());
     return values_[i.value];
   }
 };

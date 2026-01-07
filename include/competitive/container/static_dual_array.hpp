@@ -10,14 +10,14 @@ template <typename T, int H, int W> class static_dual_array {
 public:
   static_dual_array() : inside_{} {};
   T& operator()(common::argument<int> i0, common::argument<int> i1) {
-    CL_VALUE_EXPECT_1(i0.value, 0 <= i0.value && i0.value < H);
-    CL_VALUE_EXPECT_1(i1.value, 0 <= i1.value && i1.value < W);
+    CL_VALUE_EXPECT_1(i0, 0 <= i0.value && i0.value < H);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1.value && i1.value < W);
     return inside_[i0.value * W + i1.value];
   }
   T const& operator()(common::argument<int> i0,
                       common::argument<int> i1) const {
-    CL_VALUE_EXPECT_1(i0.value, 0 <= i0.value && i0.value < H);
-    CL_VALUE_EXPECT_1(i1.value, 0 <= i1.value && i1.value < W);
+    CL_VALUE_EXPECT_1(i0, 0 <= i0.value && i0.value < H);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1.value && i1.value < W);
     return inside_[i0.value * W + i1.value];
   }
   T& at(int i0, int i1) {

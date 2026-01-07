@@ -11,14 +11,14 @@ template <typename T> class dual_array {
 public:
   dual_array(int d0, int d1) : inside_(d0 * d1), dim0(d0), dim1(d1) {}
   T& operator()(common::argument<int> i0, common::argument<int> i1) {
-    CL_VALUE_EXPECT_1(i0.value, 0 <= i0.value && i0.value < dim0);
-    CL_VALUE_EXPECT_1(i1.value, 0 <= i1.value && i1.value < dim1);
+    CL_VALUE_EXPECT_1(i0, 0 <= i0.value && i0.value < dim0);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1.value && i1.value < dim1);
     return inside_[i0.value * dim1 + i1.value];
   }
   T const& operator()(common::argument<int> i0,
                       common::argument<int> i1) const {
-    CL_VALUE_EXPECT_1(i0.value, 0 <= i0.value && i0.value < dim0);
-    CL_VALUE_EXPECT_1(i1.value, 0 <= i1.value && i1.value < dim1);
+    CL_VALUE_EXPECT_1(i0, 0 <= i0.value && i0.value < dim0);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1.value && i1.value < dim1);
     return inside_[i0.value * dim1 + i1.value];
   }
   T& at(int i0, int i1) {

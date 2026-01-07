@@ -49,9 +49,8 @@ template <typename T>
 [[noreturn]] constexpr void fail(const char* expr, const char* name,
                                  T const& value,
                                  std::source_location error_location) {
-  using common::debug::println;
-  println("assertion failed:", std::quoted(expr));
-  println(" ", name, "=", value);
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println(" ", name, "=", value);
   std::cerr << "where: ";
   output_location(error_location);
   std::cerr << " from: ";
@@ -63,10 +62,9 @@ template <typename T0, typename T1>
 [[noreturn]] constexpr void
 fail(const char* expr, const char* name0, T0 const& value0, const char* name1,
      T1 const& value1, std::source_location error_location) {
-  using common::debug::println;
-  println("assertion failed:", std::quoted(expr));
-  println(" ", name0, "=", value0);
-  println(" ", name1, "=", value1);
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println(" ", name0, "=", value0);
+  common::debug::println(" ", name1, "=", value1);
   std::cerr << "where: ";
   output_location(error_location);
   std::cerr << " from: ";
@@ -117,4 +115,9 @@ template <typename T> struct argument {
                      std::source_location loc = std::source_location::current())
       : value(std::forward<U>(u)), location(loc) {}
 };
+template <typename T>
+void operator<<(common::internal::print_base_t& pb,
+                common::argument<T> const& arg) {
+  pb << arg.value;
+}
 } // namespace common
