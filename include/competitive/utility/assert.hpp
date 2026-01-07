@@ -106,9 +106,4 @@ template <typename T> struct argument {
                      std::source_location loc = std::source_location::current())
       : value(std::forward<U>(u)), location(loc) {}
 };
-template <typename T>
-void operator<<(common::internal::print_base_t& pb,
-                common::argument<T> const& arg) {
-  pb << arg.value;
-}
 } // namespace common

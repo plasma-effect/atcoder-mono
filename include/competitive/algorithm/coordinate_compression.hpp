@@ -19,14 +19,14 @@ public:
   int size() const {
     return static_cast<int>(values_.size());
   }
-  int get_index(common::argument<T const&> v) const {
-    auto it = std::ranges::lower_bound(values_, v.value);
-    CL_VALUE_EXPECT_2(*it, v.value, *it == v.value);
+  int get_index(T const& v, CL_FROM_LOCATION) const {
+    auto it = std::ranges::lower_bound(values_, v);
+    CL_VALUE_EXPECT_2(*it, v, *it == v);
     return static_cast<int>(it - values_.begin());
   }
-  T const& get_value(common::argument<int> i) const {
-    CL_VALUE_EXPECT_1(i, 0 <= i.value && i.value < size());
-    return values_[i.value];
+  T const& get_value(int i, CL_FROM_LOCATION) const {
+    CL_VALUE_EXPECT_1(i, 0 <= i && i < size());
+    return values_[i];
   }
 };
 template <std::ranges::input_range Rng>
