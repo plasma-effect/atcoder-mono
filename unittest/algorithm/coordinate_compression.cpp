@@ -42,3 +42,15 @@ TEST(CoordinateCompression, Projection) {
   EXPECT_EQ(compression.get_value(3), 7);
   EXPECT_EQ(compression.get_value(4), 9);
 }
+
+TEST(CoordinateCompression, OutOfBounds) {
+  std::vector coordinate = {1, 3, 5, 7, 9};
+  competitive::coordinate_compression compression(coordinate);
+
+  EXPECT_DEATH({ compression.get_index(-1); }, ".");
+  EXPECT_DEATH({ compression.get_index(2); }, ".");
+  EXPECT_DEATH({ compression.get_index(10); }, ".");
+
+  EXPECT_DEATH({ compression.get_value(-1); }, ".");
+  EXPECT_DEATH({ compression.get_value(5); }, ".");
+}
