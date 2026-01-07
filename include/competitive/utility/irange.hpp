@@ -4,7 +4,7 @@
 namespace common {
 template <std::integral Int>
 auto irange(Int first, Int last, CL_FROM_LOCATION) {
-  CL_ASSERT(std::cmp_less_equal(first, last));
+  CL_VALUE_EXPECT_2(first, last, std::cmp_less_equal(first, last));
   return std::views::iota(first, last);
 }
 template <std::integral Int> auto irange(Int last, CL_FROM_LOCATION) {
@@ -53,8 +53,8 @@ template <std::integral Int> struct dual_irange_t {
 } // namespace internal
 template <std::integral Int>
 auto dual_irange(Int f0, Int e0, Int f1, Int e1, CL_FROM_LOCATION) {
-  CL_ASSERT(std::cmp_less_equal(f0, e0));
-  CL_ASSERT(std::cmp_less_equal(f1, e1));
+  CL_VALUE_EXPECT_2(f0, e0, std::cmp_less_equal(f0, e0));
+  CL_VALUE_EXPECT_2(f1, e1, std::cmp_less_equal(f1, e1));
   return internal::dual_irange_t{f0, f1, e0, e1};
 }
 template <std::integral Int>

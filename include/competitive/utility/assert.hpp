@@ -1,4 +1,5 @@
 #pragma once
+#include "competitive/io/debug_print.hpp"
 #include <bits/stdc++.h>
 
 namespace common::debug::internal {
@@ -44,6 +45,47 @@ struct location {
        ? void(0)                                                               \
        : common::debug::internal::fail(#__VA_ARGS__,                           \
                                        std::source_location::current()))
+template <typename T>
+[[noreturn]] constexpr void fail(const char* expr, const char* name,
+                                 T const& value,
+                                 std::source_location error_location) {
+  using common::debug::println;
+  println("assertion failed:", std::quoted(expr));
+  println(" ", name, "=", value);
+  std::cerr << "where: ";
+  output_location(error_location);
+  std::cerr << " from: ";
+  output_location(FROM);
+  std::cerr << std::flush;
+  std::abort();
+}
+template <typename T0, typename T1>
+[[noreturn]] constexpr void
+fail(const char* expr, const char* name0, T0 const& value0, const char* name1,
+     T1 const& value1, std::source_location error_location) {
+  using common::debug::println;
+  println("assertion failed:", std::quoted(expr));
+  println(" ", name0, "=", value0);
+  println(" ", name1, "=", value1);
+  std::cerr << "where: ";
+  output_location(error_location);
+  std::cerr << " from: ";
+  output_location(FROM);
+  std::cerr << std::flush;
+  std::abort();
+}
+#define CL_VALUE_EXPECT_1(value, ...)                                          \
+  (static_cast<bool>(__VA_ARGS__)                                              \
+       ? void(0)                                                               \
+       : common::debug::internal::fail(#__VA_ARGS__, #value, value,            \
+                                       std::source_location::current()))
+#define CL_VALUE_EXPECT_2(value0, value1, ...)                                 \
+  (static_cast<bool>(__VA_ARGS__)                                              \
+       ? void(0)                                                               \
+       : common::debug::internal::fail(#__VA_ARGS__, #value0, value0, #value1, \
+                                       value1,                                 \
+                                       std::source_location::current()))
+
 #else
 struct location {
   constexpr location(std::source_location) {}
@@ -52,6 +94,12 @@ struct location {
   location(location&&) = delete;
 };
 #define CL_ASSERT(...)                                                         \
+  assert(__VA_ARGS__);                                                         \
+  [[assume((__VA_ARGS__))]]
+#define CL_VALUE_EXPECT_1(value, ...)                                          \
+  assert(__VA_ARGS__);                                                         \
+  [[assume((__VA_ARGS__))]]
+#define CL_VALUE_EXPECT_2(value0, value1, ...)                                 \
   assert(__VA_ARGS__);                                                         \
   [[assume((__VA_ARGS__))]]
 #endif

@@ -35,14 +35,14 @@ public:
   }
 #endif
   void set(int i0, int i1, common::argument<T> v) {
-    CL_ASSERT(0 <= i0 && i0 < H);
-    CL_ASSERT(0 <= i1 && i1 < W);
+    CL_VALUE_EXPECT_1(i0, 0 <= i0 && i0 < H);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1 && i1 < W);
     inside_[i0 * W + i1] = std::move(v.value);
     version_[i0 * W + i1] = current_;
   }
   T const& get(int i0, int i1, CL_FROM_LOCATION) {
-    CL_ASSERT(0 <= i0 && i0 < H);
-    CL_ASSERT(0 <= i1 && i1 < W);
+    CL_VALUE_EXPECT_1(i0, 0 <= i0 && i0 < H);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1 && i1 < W);
     if (version_[i0 * W + i1] != current_) {
       inside_[i0 * W + i1] = T();
       version_[i0 * W + i1] = current_;

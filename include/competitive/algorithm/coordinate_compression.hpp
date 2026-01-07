@@ -21,11 +21,11 @@ public:
   }
   int get_index(common::argument<T const&> v) const {
     auto it = std::ranges::lower_bound(values_, v.value);
-    CL_ASSERT(*it == v.value);
+    CL_VALUE_EXPECT_2(*it, v.value, *it == v.value);
     return static_cast<int>(it - values_.begin());
   }
   T const& get_value(common::argument<int> i) const {
-    CL_ASSERT(0 <= i.value && i.value < size());
+    CL_VALUE_EXPECT_1(i.value, 0 <= i.value && i.value < size());
     return values_[i.value];
   }
 };

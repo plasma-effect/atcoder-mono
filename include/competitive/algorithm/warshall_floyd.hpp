@@ -22,7 +22,7 @@ template <typename T> void local_update(T& base, T a, T b) {
 template <typename T>
 void warshall_floyd(common::dual_array<T>& data, CL_FROM_LOCATION) {
   auto [N, d1] = data.dimensions();
-  CL_ASSERT(N == d1);
+  CL_VALUE_EXPECT_2(N, d1, N == d1);
   for (auto k : common::irange(N)) {
     for (auto i : common::irange(N)) {
       for (auto j : common::irange(N)) {

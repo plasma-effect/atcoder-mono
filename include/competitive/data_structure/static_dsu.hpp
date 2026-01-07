@@ -11,8 +11,8 @@ public:
   }
 
   int merge(common::argument<int> a, int b) {
-    CL_ASSERT(0 <= a.value && a.value < N);
-    CL_ASSERT(0 <= b && b < N);
+    CL_VALUE_EXPECT_1(a.value, 0 <= a.value && a.value < N);
+    CL_VALUE_EXPECT_1(b, 0 <= b && b < N);
     int x = leader(a.value), y = leader(b);
     if (x == y) {
       return x;
@@ -25,12 +25,12 @@ public:
     return x;
   }
   bool same(common::argument<int> a, int b) {
-    CL_ASSERT(0 <= a.value && a.value < N);
-    CL_ASSERT(0 <= b && b < N);
+    CL_VALUE_EXPECT_1(a.value, 0 <= a.value && a.value < N);
+    CL_VALUE_EXPECT_1(b, 0 <= b && b < N);
     return leader(a.value) == leader(b);
   }
   int leader(common::argument<int> a) {
-    CL_ASSERT(0 <= a.value && a.value < N);
+    CL_VALUE_EXPECT_1(a.value, 0 <= a.value && a.value < N);
     if (parent_or_size[a.value] < 0) {
       return a.value;
     } else {
@@ -38,7 +38,7 @@ public:
     }
   }
   int size(common::argument<int> a) {
-    CL_ASSERT(0 <= a.value && a.value < N);
+    CL_VALUE_EXPECT_1(a.value, 0 <= a.value && a.value < N);
     return -parent_or_size[leader(a.value)];
   }
 };

@@ -72,7 +72,8 @@ class time_control_with_annealing
 public:
   time_control_with_annealing() : dist(0uz, particle - 1), engine() {}
   bool transition_check(double diff) {
-    CL_ASSERT(this->current().count() < time_limit_ms);
+    CL_VALUE_EXPECT_1(this->current().count(),
+                      this->current().count() < time_limit_ms);
     if (diff > 0) {
       return true;
     } else {
