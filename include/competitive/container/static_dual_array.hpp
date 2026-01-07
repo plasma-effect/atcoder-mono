@@ -9,16 +9,20 @@ template <typename T, int H, int W> class static_dual_array {
 
 public:
   static_dual_array() : inside_{} {};
-  T& operator()(common::argument<int> i0, common::argument<int> i1) {
-    CL_ASSERT(0 <= i0.value && i0.value < H);
-    CL_ASSERT(0 <= i1.value && i1.value < W);
-    return inside_[i0.value * W + i1.value];
+  T& operator()(common::argument<int> i0_, common::argument<int> i1_) {
+    const auto i0 = i0_.value;
+    const auto i1 = i1_.value;
+    CL_VALUE_EXPECT_1(i0, 0 <= i0 && i0 < H);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1 && i1 < W);
+    return inside_[i0 * W + i1];
   }
-  T const& operator()(common::argument<int> i0,
-                      common::argument<int> i1) const {
-    CL_ASSERT(0 <= i0.value && i0.value < H);
-    CL_ASSERT(0 <= i1.value && i1.value < W);
-    return inside_[i0.value * W + i1.value];
+  T const& operator()(common::argument<int> i0_,
+                      common::argument<int> i1_) const {
+    const auto i0 = i0_.value;
+    const auto i1 = i1_.value;
+    CL_VALUE_EXPECT_1(i0, 0 <= i0 && i0 < H);
+    CL_VALUE_EXPECT_1(i1, 0 <= i1 && i1 < W);
+    return inside_[i0 * W + i1];
   }
   T& at(int i0, int i1) {
     if (i0 < 0 || i0 >= H) [[unlikely]] {

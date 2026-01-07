@@ -10,10 +10,10 @@ public:
     std::ranges::fill(parent_or_size, -1);
   }
 
-  int merge(common::argument<int> a, int b) {
-    CL_ASSERT(0 <= a.value && a.value < N);
-    CL_ASSERT(0 <= b && b < N);
-    int x = leader(a.value), y = leader(b);
+  int merge(int a, int b, CL_FROM_LOCATION) {
+    CL_VALUE_EXPECT_1(a, 0 <= a && a < N);
+    CL_VALUE_EXPECT_1(b, 0 <= b && b < N);
+    int x = leader(a), y = leader(b);
     if (x == y) {
       return x;
     }
@@ -24,22 +24,22 @@ public:
     parent_or_size[y] = x;
     return x;
   }
-  bool same(common::argument<int> a, int b) {
-    CL_ASSERT(0 <= a.value && a.value < N);
-    CL_ASSERT(0 <= b && b < N);
-    return leader(a.value) == leader(b);
+  bool same(int a, int b, CL_FROM_LOCATION) {
+    CL_VALUE_EXPECT_1(a, 0 <= a && a < N);
+    CL_VALUE_EXPECT_1(b, 0 <= b && b < N);
+    return leader(a) == leader(b);
   }
-  int leader(common::argument<int> a) {
-    CL_ASSERT(0 <= a.value && a.value < N);
-    if (parent_or_size[a.value] < 0) {
-      return a.value;
+  int leader(int a, CL_FROM_LOCATION) {
+    CL_VALUE_EXPECT_1(a, 0 <= a && a < N);
+    if (parent_or_size[a] < 0) {
+      return a;
     } else {
-      return parent_or_size[a.value] = leader(parent_or_size[a.value]);
+      return parent_or_size[a] = leader(parent_or_size[a]);
     }
   }
-  int size(common::argument<int> a) {
-    CL_ASSERT(0 <= a.value && a.value < N);
-    return -parent_or_size[leader(a.value)];
+  int size(int a, CL_FROM_LOCATION) {
+    CL_VALUE_EXPECT_1(a, 0 <= a && a < N);
+    return -parent_or_size[leader(a)];
   }
 };
 } // namespace competitive

@@ -136,6 +136,15 @@ TEST(PrintBase, OptionalVector) {
   EXPECT_EQ(ss.str(), "1 <nullopt> 3");
 }
 
+TEST(PrintBase, SourceLocation) {
+  std::stringstream ss;
+  common::internal::print_base_t base(ss, default_dec, default_dec);
+  auto location = std::source_location::current();
+  base << location;
+  EXPECT_EQ(ss.str(),
+            std::format("{}: {}", location.function_name(), location.line()));
+}
+
 TEST(PrintBase, SetRangeDec) {
   const char* decolater[] = {"{", "}", ","};
   std::stringstream ss;

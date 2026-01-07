@@ -44,7 +44,7 @@ public:
     hashes.reserve(size_ + 1);
     hashes.emplace_back(hash);
     for (auto c : rng) {
-      CL_ASSERT(Min <= c && c <= Max);
+      CL_VALUE_EXPECT_1(c, Min <= c && c <= Max);
       hash *= base();
       hash += c - Min + 1;
       hash %= mod();
@@ -80,7 +80,7 @@ public:
   subhash_t subhash(std::size_t first,
                     std::size_t len = common::max_v<std::size_t>,
                     CL_FROM_LOCATION) const {
-    CL_ASSERT(first <= size_);
+    CL_VALUE_EXPECT_1(first, first <= size_);
     len = std::min(len, size_ - first);
     return subhash_t{*this, first, len};
   }

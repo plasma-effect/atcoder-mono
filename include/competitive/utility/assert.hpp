@@ -1,4 +1,5 @@
 #pragma once
+#include "competitive/io/debug_print.hpp"
 #include <bits/stdc++.h>
 
 namespace common::debug::internal {
@@ -13,12 +14,30 @@ inline std::source_location enter_location() {
 }
 [[noreturn]] constexpr void fail(const char* expr,
                                  std::source_location error_location) {
-  std::cerr << "assertion failed: \"" << expr << "\"\n";
-  std::cerr << "where: ";
-  output_location(error_location);
-  std::cerr << " from: ";
-  output_location(FROM);
-  std::cerr << std::flush;
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println("where:", error_location);
+  common::debug::println(" from:", FROM);
+  std::abort();
+}
+template <typename T0>
+[[noreturn]] constexpr void fail(const char* expr,
+                                 std::source_location error_location,
+                                 const char* name0, T0 const& value0) {
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println(" ", name0, "=", value0);
+  common::debug::println("where:", error_location);
+  common::debug::println(" from:", FROM);
+  std::abort();
+}
+template <typename T0, typename T1>
+[[noreturn]] constexpr void
+fail(const char* expr, std::source_location error_location, const char* name0,
+     T0 const& value0, const char* name1, T1 const& value1) {
+  common::debug::println("assertion failed:", std::quoted(expr));
+  common::debug::println(" ", name0, "=", value0);
+  common::debug::println(" ", name1, "=", value1);
+  common::debug::println("where:", error_location);
+  common::debug::println(" from:", FROM);
   std::abort();
 }
 struct location {
@@ -39,10 +58,23 @@ struct location {
   location(location const&) = delete;
   location(location&&) = delete;
 };
-#define CL_ASSERT(expr)                                                        \
-  (static_cast<bool>(expr) ? void(0)                                           \
-                           : common::debug::internal::fail(                    \
-                                 #expr, std::source_location::current()))
+#define CL_ASSERT(...)                                                         \
+  (static_cast<bool>(__VA_ARGS__)                                              \
+       ? void(0)                                                               \
+       : common::debug::internal::fail(#__VA_ARGS__,                           \
+                                       std::source_location::current()))
+#define CL_VALUE_EXPECT_1(value, ...)                                          \
+  (static_cast<bool>(__VA_ARGS__)                                              \
+       ? void(0)                                                               \
+       : common::debug::internal::fail(                                        \
+             #__VA_ARGS__, std::source_location::current(), #value, value))
+#define CL_VALUE_EXPECT_2(value0, value1, ...)                                 \
+  (static_cast<bool>(__VA_ARGS__)                                              \
+       ? void(0)                                                               \
+       : common::debug::internal::fail(#__VA_ARGS__,                           \
+                                       std::source_location::current(),        \
+                                       #value0, value0, #value1, value1))
+
 #else
 struct location {
   constexpr location(std::source_location) {}
@@ -50,7 +82,15 @@ struct location {
   location(location const&) = delete;
   location(location&&) = delete;
 };
-#define CL_ASSERT(expr) assert(expr)
+#define CL_ASSERT(...)                                                         \
+  assert(__VA_ARGS__);                                                         \
+  [[assume((__VA_ARGS__))]]
+#define CL_VALUE_EXPECT_1(value, ...)                                          \
+  assert(__VA_ARGS__);                                                         \
+  [[assume((__VA_ARGS__))]]
+#define CL_VALUE_EXPECT_2(value0, value1, ...)                                 \
+  assert(__VA_ARGS__);                                                         \
+  [[assume((__VA_ARGS__))]]
 #endif
 } // namespace common::debug::internal
 #define CL_FROM_LOCATION                                                       \
