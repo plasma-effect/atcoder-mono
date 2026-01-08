@@ -3,9 +3,6 @@
 #include "competitive/math/monoid.hpp"
 
 namespace competitive {
-namespace internal {
-template <auto monoid> using value_t = typename decltype(monoid)::value_t;
-} // namespace internal
 template <auto monoid>
 using segtree = atcoder::segtree<internal::value_t<monoid>, monoid, monoid>;
 template <typename T> using add_segtree = segtree<plus<T>>;
