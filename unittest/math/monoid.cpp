@@ -1,4 +1,5 @@
 #include "competitive/math/monoid.hpp"
+#include "atcoder/all"
 #include <gtest/gtest.h>
 
 TEST(Math, MonoidPlus) {
@@ -8,11 +9,27 @@ TEST(Math, MonoidPlus) {
   EXPECT_EQ(plus(), 0);
 }
 
+TEST(Math, MonoidModIntPlus) {
+  using modint = atcoder::static_modint<7>;
+  constexpr auto plus = competitive::plus<modint>;
+  EXPECT_EQ(plus(4, 5), modint(2));
+  EXPECT_EQ(plus(2, plus(3, 4)), modint(2));
+  EXPECT_EQ(plus(), modint());
+}
+
 TEST(Math, MonoidMultiplies) {
   constexpr auto multiplies = competitive::multiplies<int>;
   EXPECT_EQ(multiplies(0b100, 0b1000), 0b100000);
   EXPECT_EQ(multiplies(2, multiplies(3, 4)), 24);
   EXPECT_EQ(multiplies(), 1);
+}
+
+TEST(Math, MonoidModIntMultiplies) {
+  using modint = atcoder::static_modint<7>;
+  constexpr auto multiplies = competitive::multiplies<modint>;
+  EXPECT_EQ(multiplies(4, 5), modint(6));
+  EXPECT_EQ(multiplies(2, multiplies(3, 4)), modint(3));
+  EXPECT_EQ(multiplies(), modint(1));
 }
 
 TEST(Math, MonoidMin) {
