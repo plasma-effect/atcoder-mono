@@ -54,6 +54,9 @@ apply_common_options(data_structure_segtree_unittest)
 add_executable(data_structure_static_dsu_unittest data_structure/static_dsu.cpp)
 apply_common_options(data_structure_static_dsu_unittest)
 
+add_executable(data_structure_static_segtree_unittest data_structure/static_segtree.cpp)
+apply_common_options(data_structure_static_segtree_unittest)
+
 # algorithm
 add_executable(algorithm_coordinate_compression_unittest algorithm/coordinate_compression.cpp)
 apply_common_options(algorithm_coordinate_compression_unittest)

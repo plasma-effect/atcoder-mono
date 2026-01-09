@@ -4,10 +4,10 @@
 
 namespace competitive {
 namespace internal {
-constexpr int bit_ceil(int n) {
+consteval int bit_ceil(int n) {
   return std::bit_ceil(static_cast<unsigned>(n));
 }
-constexpr int countr_zero(int n) {
+consteval int countr_zero(int n) {
   return std::countr_zero(static_cast<unsigned>(n));
 }
 } // namespace internal
@@ -49,7 +49,7 @@ public:
         sml = monoid(sml, elems_[l++]);
       }
       if (r & 1) {
-        smr = monoid(smr[--r], smr);
+        smr = monoid(elems_[--r], smr);
       }
       l >>= 1;
       r >>= 1;
