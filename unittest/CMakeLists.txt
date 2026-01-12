@@ -32,6 +32,9 @@ function(apply_common_options)
 endfunction()
 
 # container
+add_executable(container_internal_adaptor_unittest container/internal/adaptor.cpp)
+apply_common_options(container_internal_adaptor_unittest)
+
 add_executable(container_dual_array_unittest container/dual_array.cpp)
 apply_common_options(container_dual_array_unittest)
 

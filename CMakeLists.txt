@@ -29,3 +29,46 @@ FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
 add_subdirectory(unittest)
+
+function(check_testfile_exists)
+  file(GLOB_RECURSE ALL_HEADERS "${CMAKE_SOURCE_DIR}/include/competitive/*.hpp")
+  set(MISSING_TESTS "")
+  foreach(header IN LISTS ALL_HEADERS)
+    file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/include/competitive ${header})
+    string(REPLACE ".hpp" ".cpp" test_path ${rel_path})
+    set(full_test_path ${CMAKE_SOURCE_DIR}/unittest/${test_path})
+    
+    if(NOT EXISTS ${full_test_path})
+      list(APPEND MISSING_TESTS ${rel_path})
+    endif()
+  endforeach()
+
+  if(MISSING_TESTS)
+    string(REPLACE ";" "\n  - " MISSING_MSG "${MISSING_TESTS}")
+    message(FATAL_ERROR "Missing test files:\n  - ${MISSING_MSG}")
+  endif()
+endfunction()
+check_testfile_exists()
+
+function(check_unittest_exists)
+  file(GLOB_RECURSE TEST_SOURCES "${CMAKE_SOURCE_DIR}/unittest/*.cpp")
+  set(MISSING_TARGETS "")
+
+  foreach(test_src IN LISTS TEST_SOURCES)
+    file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/unittest ${test_src})
+    string(REPLACE ".cpp" "" remove_ext ${rel_path})
+    string(REPLACE "/" "_" target_name ${remove_ext})
+    set(full_target_name "${target_name}_unittest")
+
+    if(NOT TARGET ${full_target_name})
+      list(APPEND MISSING_TARGETS 
+        "add_executable(${full_target_name} ${rel_path})\n  apply_common_options(${full_target_name})")
+    endif()
+  endforeach()
+
+  if(MISSING_TARGETS)
+    string(REPLACE ";" "\n  " MISSING_MSG "${MISSING_TARGETS}")
+    message(FATAL_ERROR "Missing Test Targets Detected (add follow tests):\n  ${MISSING_MSG}")
+  endif()
+endfunction()
+check_unittest_exists()
