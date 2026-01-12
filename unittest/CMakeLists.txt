@@ -80,6 +80,9 @@ apply_common_options(heuristic_persistent_array_unittest)
 add_executable(heuristic_random_unittest heuristic/random.cpp)
 apply_common_options(heuristic_random_unittest)
 
+add_executable(heuristic_shared_array_unittest heuristic/shared_array.cpp)
+apply_common_options(heuristic_shared_array_unittest)
+
 add_executable(heuristic_singleton_dual_array_unittest heuristic/singleton_dual_array.cpp)
 apply_common_options(heuristic_singleton_dual_array_unittest)
 
