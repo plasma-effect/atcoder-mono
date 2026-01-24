@@ -29,6 +29,11 @@ public:
     }
 #endif
   }
+#ifdef LOCAL_DEBUG
+  ~singleton_static_queue() {
+    defined_.reset();
+  }
+#endif
   void push_i(T&& v) {
     inside_.push(std::move(v));
   }
