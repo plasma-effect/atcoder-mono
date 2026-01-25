@@ -106,6 +106,9 @@ add_executable(utility_priority_queue_unittest utility/priority_queue.cpp)
 apply_common_options(utility_priority_queue_unittest)
 
 # math
+add_executable(math_argument_sort_unittest math/argument_sort.cpp)
+apply_common_options(math_argument_sort_unittest)
+
 add_executable(math_factorial_unittest math/factorial.cpp)
 apply_common_options(math_factorial_unittest)
 
