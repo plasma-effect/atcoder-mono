@@ -34,20 +34,17 @@ public:
     defined_.reset();
   }
 #endif
-  template <typename U> void set(int i0, int i1, U&& u, CL_FROM_LOCATION) {
-    CL_VALUE_EXPECT_1(i0, 0 <= i0 && i0 < H);
-    CL_VALUE_EXPECT_1(i1, 0 <= i1 && i1 < W);
-    inside_[i0 * W + i1] = std::forward<U>(u);
-    version_[i0 * W + i1] = current_;
-  }
-  T const& get(int i0, int i1, CL_FROM_LOCATION) {
-    CL_VALUE_EXPECT_1(i0, 0 <= i0 && i0 < H);
-    CL_VALUE_EXPECT_1(i1, 0 <= i1 && i1 < W);
-    if (version_[i0 * W + i1] != current_) {
-      inside_[i0 * W + i1] = T();
-      version_[i0 * W + i1] = current_;
+  T& operator()(common::argument<int> i0, common::argument<int> i1) {
+    auto i0_ = i0.value;
+    auto i1_ = i1.value;
+    CL_VALUE_EXPECT_1(i0_, 0 <= i0_ && i0_ < H);
+    CL_VALUE_EXPECT_1(i1_, 0 <= i1_ && i1_ < W);
+    const auto idx = i0_ * W + i1_;
+    if (version_[idx] != current_) {
+      inside_[idx] = T();
+      version_[idx] = current_;
     }
-    return inside_[i0 * W + i1];
+    return inside_[idx];
   }
 };
 } // namespace heuristic
