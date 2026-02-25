@@ -8,6 +8,7 @@ using segtree = atcoder::segtree<internal::value_t<monoid>, monoid, monoid>;
 template <typename T> using add_segtree = segtree<plus<T>>;
 template <typename T> using mul_segtree = segtree<multiplies<T>>;
 template <typename T> using max_segtree = segtree<max<T>>;
+template <typename T> using min_segtree = segtree<min<T>>;
 
 template <auto monoid, auto mapping>
 using lazy_segtree = atcoder::lazy_segtree<internal::value_t<monoid>, monoid,
