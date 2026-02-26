@@ -5,7 +5,8 @@
 
 namespace competitive {
 template <typename T, std::size_t Cap>
-class static_queue : public internal::push_impl<T, static_queue<T, Cap>> {
+class static_queue : public internal::push_back_impl<T, static_queue<T, Cap>>,
+                     public internal::push_front_impl<T, static_queue<T, Cap>> {
   std::array<T, Cap> elems_;
   T* first_;
   T* last_;
@@ -14,12 +15,20 @@ class static_queue : public internal::push_impl<T, static_queue<T, Cap>> {
 public:
   static_queue()
       : elems_{}, first_(elems_.begin()), last_(elems_.begin()), size_() {}
-  void push_i(T&& v) {
+  void push_back_i(T&& v) {
     CL_ASSERT(size_ < Cap);
     *last_ = std::move(v);
     if (++last_ == elems_.end()) {
       last_ = elems_.begin();
     }
+    ++size_;
+  }
+  void push_front_i(T&& v) {
+    CL_ASSERT(size_ < Cap);
+    if (first_ == elems_.begin()) {
+      first_ = elems_.end();
+    }
+    *(--first_) = std::move(v);
     ++size_;
   }
   T pop(CL_FROM_LOCATION) {

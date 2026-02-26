@@ -35,7 +35,7 @@ public:
   }
 #endif
   void push_i(T&& v) {
-    inside_.push(std::move(v));
+    inside_.push_back(std::move(v));
   }
   T pop(CL_FROM_LOCATION) {
     return inside_.pop();
