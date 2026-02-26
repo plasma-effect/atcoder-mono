@@ -30,6 +30,19 @@ TEST(StaticQueue, General) {
   EXPECT_EQ(queue.size(), 0);
 }
 
+TEST(StaticQueue, CapacityOver) {
+  competitive::static_queue<int, 3> queue;
+  queue.push_back(0);
+  queue.push_back(0);
+  queue.push_back(0);
+  EXPECT_DEATH({ queue.push_back(0); }, ".");
+}
+
+TEST(StaticQueue, NullPop) {
+  competitive::static_queue<int, 3> queue;
+  EXPECT_DEATH({ queue.pop(); }, ".");
+}
+
 TEST(StaticQueue, Pair) {
   competitive::static_queue<std::pair<int, int>, 3> queue;
   queue.push_back(std::pair(0x00, 0x01));
