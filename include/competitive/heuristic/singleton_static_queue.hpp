@@ -7,7 +7,9 @@
 
 namespace heuristic {
 template <typename T, int Cap, int id = -1>
-class singleton_static_queue : public competitive::internal::push_impl<
+class singleton_static_queue : public competitive::internal::push_back_impl<
+                                   T, singleton_static_queue<T, Cap, id>>,
+                               public competitive::internal::push_front_impl<
                                    T, singleton_static_queue<T, Cap, id>> {
   static inline competitive::static_queue<T, Cap> inside_;
 #ifdef LOCAL_DEBUG
@@ -34,8 +36,11 @@ public:
     defined_.reset();
   }
 #endif
-  void push_i(T&& v) {
+  void push_back_i(T&& v) {
     inside_.push_back(std::move(v));
+  }
+  void push_front_i(T&& v) {
+    inside_.push_front(std::move(v));
   }
   T pop(CL_FROM_LOCATION) {
     return inside_.pop();
