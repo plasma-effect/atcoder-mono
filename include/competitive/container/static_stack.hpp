@@ -5,8 +5,7 @@
 
 namespace competitive {
 template <typename T, std::size_t Cap>
-class static_stack
-    : public internal::container_adaptor<T, static_stack<T, Cap>> {
+class static_stack : public internal::push_impl<T, static_stack<T, Cap>> {
   std::array<T, Cap> elems_;
   std::size_t size_ = 0;
 
