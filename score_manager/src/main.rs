@@ -9,8 +9,12 @@ use std::process::Command;
 use std::vec;
 use std::{fs::File, io, path::PathBuf};
 
+use crate::abs_checker::AbsChecker;
 use crate::manager_base::expand;
+use crate::utils::Setting;
+mod abs_checker;
 mod manager_base;
+mod utils;
 
 #[derive(Debug, Clone, Bpaf)]
 #[bpaf(options, version)]
@@ -19,28 +23,20 @@ struct Opts {
     setting: PathBuf,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Setting {
-    increase: bool,
-    relative: bool,
-    best: PathBuf,
-    best_detail: PathBuf,
-    compare: PathBuf,
-    target: PathBuf,
-    input: PathBuf,
-    output: PathBuf,
-    vis: PathBuf,
-}
-
-fn read_file(path: &PathBuf) -> io::Result<Vec<String>> {
+fn read_file_base(path: &PathBuf) -> io::Result<Vec<String>> {
     let mut f = File::open(path)?;
     let mut contents = String::new();
     f.read_to_string(&mut contents).unwrap();
     Ok(contents.lines().map(|x| x.to_string()).collect())
 }
 
+fn read_file(path: &PathBuf) -> io::Result<HashMap<String, i64>> {
+    let lines = read_file_base(&path)?;
+    Ok(expand(lines))
+}
+
 fn read_file_or_default(path: &PathBuf) -> HashMap<String, i64> {
-    match read_file(&path) {
+    match read_file_base(&path) {
         Ok(lines) => expand(lines),
         Err(_) => HashMap::new(),
     }
@@ -332,13 +328,49 @@ fn main() -> io::Result<()> {
     let mut bests = read_file_or_default(&setting.best_detail);
     let targets = read_file_or_default(&setting.target);
     if !setting.relative {
-        absolute_check(&results, &mut bests, &setting)?;
+        let mut checker = AbsChecker::create(bests, targets, &setting);
+        let mut compare_results = checker.compare(results);
+        let mut cmpf = File::create(&setting.best_detail).unwrap();
+        compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
+        for result in &compare_results {
+            let score = result.score;
+            let best = result.best;
+            let diff = score - best;
+            writeln!(
+                &mut cmpf,
+                "{}: {} (now = {}, best = {})",
+                &result.filename, diff, score, best
+            )
+            .unwrap();
+        }
+        println!("check follow cases:");
+        compare_results.sort_by(|a, b| {
+            let d0 = -(a.best - a.score).abs();
+            let d1 = -(b.best - b.score).abs();
+            return d0.cmp(&d1);
+        });
+        for result in compare_results.iter().take(5) {
+            let score = result.score;
+            let best = result.best;
+            println!(
+                "{}: {:+} (now = {}, best = {})",
+                &result.filename,
+                score - best,
+                score,
+                best
+            );
+        }
+        let bests = checker.get_best_results();
+        let mut f = File::create(setting.best_detail).unwrap();
+        for (name, score) in bests {
+            writeln!(&mut f, "{} = {}", name, score)?;
+        }
     } else {
         relative_check(&results, &mut bests, &targets, &setting)?;
-    }
-    let mut f = File::create(setting.best_detail).unwrap();
-    for (name, score) in bests {
-        writeln!(&mut f, "{} = {}", name, score)?;
+        let mut f = File::create(setting.best_detail).unwrap();
+        for (name, score) in bests {
+            writeln!(&mut f, "{} = {}", name, score)?;
+        }
     }
     return Ok(());
 }
