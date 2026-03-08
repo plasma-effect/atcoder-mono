@@ -1,8 +1,6 @@
 use bpaf::Bpaf;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::f64;
 use std::io::Read;
 use std::io::Write;
 use std::process::Command;
@@ -10,10 +8,15 @@ use std::vec;
 use std::{fs::File, io, path::PathBuf};
 
 use crate::abs_checker::AbsChecker;
+use crate::checker::Checker;
 use crate::manager_base::expand;
-use crate::utils::Setting;
+use crate::rel_checker::{RelChecker, rscore};
+use crate::utils::{Setting, compare, ratio};
+
 mod abs_checker;
+mod checker;
 mod manager_base;
+mod rel_checker;
 mod utils;
 
 #[derive(Debug, Clone, Bpaf)]
@@ -30,38 +33,11 @@ fn read_file_base(path: &PathBuf) -> io::Result<Vec<String>> {
     Ok(contents.lines().map(|x| x.to_string()).collect())
 }
 
-fn read_file(path: &PathBuf) -> io::Result<HashMap<String, i64>> {
-    let lines = read_file_base(&path)?;
-    Ok(expand(lines))
-}
-
 fn read_file_or_default(path: &PathBuf) -> HashMap<String, i64> {
     match read_file_base(&path) {
         Ok(lines) => expand(lines),
         Err(_) => HashMap::new(),
     }
-}
-
-fn read_best(path: &PathBuf, increase: bool) -> String {
-    match File::open(path) {
-        Ok(mut f) => {
-            let mut line = String::new();
-            f.read_to_string(&mut line).unwrap();
-            line.trim_end().into()
-        }
-        Err(_) => {
-            if increase {
-                "1".to_string()
-            } else {
-                "100000000000".to_string()
-            }
-        }
-    }
-}
-
-fn write_best(path: &PathBuf, best: String) {
-    let mut f = File::create(path).unwrap();
-    writeln!(&mut f, "{}", best).unwrap();
 }
 
 fn read_results(
@@ -100,224 +76,6 @@ fn read_results(
     Ok(results)
 }
 
-fn ratio(a: f64, b: f64, increase: bool) -> f64 {
-    if increase {
-        a / b
-    } else if a == 0.0 {
-        f64::INFINITY
-    } else {
-        b / a
-    }
-}
-
-fn compare<T: PartialOrd>(a: T, b: T, increase: bool) -> bool {
-    if increase { a > b } else { a < b }
-}
-
-fn print_compare_results_abs(path: &PathBuf, mut compare_results: Vec<(&String, i64, i64, i64)>) {
-    let mut cmpf = File::create(path).unwrap();
-    compare_results.sort_by(|a, b| a.0.cmp(b.0));
-    for (name, d, score, best) in compare_results {
-        writeln!(
-            &mut cmpf,
-            "{}: {} (now = {}, best = {})",
-            name, d, score, best
-        )
-        .unwrap();
-    }
-}
-
-fn absolute_check(
-    results: &HashMap<String, i64>,
-    bests: &mut HashMap<String, i64>,
-    setting: &Setting,
-) -> io::Result<()> {
-    let mut sum: i64 = 0;
-    let mut ranking = vec![];
-    let mut compare_results = vec![];
-    let increase = setting.increase;
-    for (name, score) in results {
-        sum += score;
-        if !bests.contains_key(name) || compare(*score, bests[name], increase) {
-            bests.insert(name.clone(), *score);
-        }
-        let d = -(score - bests[name]).abs();
-        compare_results.push((name, d, *score, bests[name]));
-        ranking.push((d, name.clone()));
-    }
-    print_compare_results_abs(&setting.compare, compare_results);
-    let best: i64 = read_best(&setting.best, increase).parse().unwrap();
-    let r = ratio(sum as f64, best as f64, increase);
-    let r = if r > 5.0 {
-        ">500.000%".to_string()
-    } else {
-        format!("{:.3}%", 100.0 * r)
-    };
-    if compare(sum, best, increase) {
-        println!("update the best score by {} ({})", (best - sum).abs(), r);
-        println!("new best score is {}", sum);
-        write_best(&setting.best, sum.to_string());
-    } else {
-        println!(
-            "{} (best = {}, {:.3}%)",
-            sum,
-            best,
-            100.0 * ratio(sum as f64, best as f64, increase)
-        );
-    }
-    ranking.sort();
-    println!("check follow cases:");
-    for (_, name) in ranking.iter().take(5) {
-        let score = results[name];
-        let best = bests[name];
-        println!(
-            "{}: {:+} (now = {}, best = {})",
-            name,
-            score - best,
-            score,
-            best
-        );
-    }
-    Ok(())
-}
-
-fn rscore(score: i64) -> f64 {
-    if score == 0 { 0.0 } else { (score as f64).ln() }
-}
-
-fn print_compare_results_rel(
-    path: &PathBuf,
-    mut compare_results: Vec<(&String, f64, i64, i64)>,
-    targets: &HashMap<String, i64>,
-) {
-    let mut cmpf = File::create(path).unwrap();
-    compare_results.sort_by(|a, b| a.0.cmp(b.0));
-    for (name, d, score, best) in compare_results {
-        let relscore = rscore(score);
-        let relbest = rscore(best);
-        if let Some(target) = targets.get(name) {
-            let reltarget = rscore(*target);
-            writeln!(
-                &mut cmpf,
-                "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {}))",
-                name, d, relscore, score, relbest, best, reltarget, target
-            )
-            .unwrap();
-        } else {
-            writeln!(
-                &mut cmpf,
-                "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
-                name, d, relscore, score, relbest, best
-            )
-            .unwrap();
-        }
-    }
-}
-
-fn relative_check(
-    results: &HashMap<String, i64>,
-    bests: &mut HashMap<String, i64>,
-    targets: &HashMap<String, i64>,
-    setting: &Setting,
-) -> io::Result<()> {
-    let mut sum: f64 = 0.0;
-    let mut ranking = vec![];
-    let mut vs_target = vec![];
-    let mut compare_results = vec![];
-    let increase = setting.increase;
-    for (name, score) in results {
-        let relscore = rscore(*score);
-        sum += relscore;
-        if !bests.contains_key(name) || compare(*score, bests[name], increase) {
-            bests.insert(name.clone(), *score);
-        }
-        let relbest = (bests[name] as f64).ln();
-        let d = -(relscore - relbest).abs();
-        ranking.push((d, name.clone()));
-        compare_results.push((name, d, *score, bests[name]));
-        if let Some(target) = targets.get(name) {
-            let d = relscore - rscore(*target);
-            vs_target.push((-d.abs(), name.clone()));
-        }
-    }
-    print_compare_results_rel(&setting.compare, compare_results, &targets);
-    let best: f64 = read_best(&setting.best, increase).parse().unwrap();
-    if compare(sum, best, increase) {
-        println!("update the best score by {:.3}", (best - sum).abs());
-        println!("new best score is {:.3}", sum);
-        write_best(&setting.best, sum.to_string());
-    } else {
-        println!(
-            "{:.3} (best = {:.3}, diff = {:.3})",
-            sum,
-            best,
-            (sum - best).abs()
-        );
-    }
-    if targets.len() != 0 {
-        let mut target = 0.0;
-        for (_, t) in targets {
-            target += rscore(*t);
-        }
-        println!(
-            "vs target (diff = {:.3}, target = {:.3})",
-            (target - sum).abs(),
-            target
-        );
-    }
-    ranking.sort_by(|(a0, a1), (b0, b1)| {
-        if let Some(r) = a0.partial_cmp(b0)
-            && r.is_ne()
-        {
-            return r;
-        }
-        return a1.cmp(b1);
-    });
-    vs_target.sort_by(|(a0, a1), (b0, b1)| {
-        if let Some(r) = a0.partial_cmp(b0)
-            && r.is_ne()
-        {
-            return r;
-        }
-        return a1.cmp(b1);
-    });
-    println!("check follow cases:");
-    println!("vs best");
-    for (d, name) in ranking.iter().take(5) {
-        let score = results[name];
-        let best = bests[name];
-        println!(
-            "  {}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
-            name,
-            d,
-            (score as f64).ln(),
-            score,
-            (best as f64).ln(),
-            best
-        );
-    }
-    if vs_target.len() != 0 {
-        println!("vs target");
-        for (d, name) in vs_target.iter().take(5) {
-            let score = results[name];
-            let best = bests[name];
-            let target = targets[name];
-            println!(
-                "  {}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {})",
-                name,
-                d,
-                rscore(score),
-                score,
-                rscore(best),
-                best,
-                rscore(target),
-                target
-            );
-        }
-    }
-    Ok(())
-}
-
 fn main() -> io::Result<()> {
     let opts = opts().run();
     let mut setting = String::new();
@@ -325,7 +83,7 @@ fn main() -> io::Result<()> {
     f.read_to_string(&mut setting).unwrap();
     let setting: Setting = serde_json::from_str(&setting).unwrap();
     let results = read_results(&setting.input, &setting.output, &setting.vis)?;
-    let mut bests = read_file_or_default(&setting.best_detail);
+    let bests = read_file_or_default(&setting.best_detail);
     let targets = read_file_or_default(&setting.target);
     if !setting.relative {
         let mut checker = AbsChecker::create(bests, targets, &setting);
@@ -366,7 +124,68 @@ fn main() -> io::Result<()> {
             writeln!(&mut f, "{} = {}", name, score)?;
         }
     } else {
-        relative_check(&results, &mut bests, &targets, &setting)?;
+        let mut checker = RelChecker::create(bests, targets, &setting);
+        let mut compare_results = checker.compare(results);
+        let mut vs_best = vec![];
+        let mut vs_target = vec![];
+        let mut cmpf = File::create(setting.compare).unwrap();
+        compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
+        for result in &compare_results {
+            let score = result.score;
+            let relscore = rscore(score);
+            let best = result.best;
+            let relbest = rscore(best);
+            let name = &result.filename;
+            let d0 = (rscore(score) - rscore(best)).abs();
+            vs_best.push((-d0, score, best, name.clone()));
+            if let Some(target) = result.target {
+                let reltarget = rscore(target);
+                let d1 = ratio(score, target, setting.increase);
+                writeln!(
+                    &mut cmpf,
+                    "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {}))",
+                    name, d1, relscore, score, relbest, best, reltarget, target
+                )
+                .unwrap();
+                vs_target.push((d1, score, target, result.filename.clone()));
+            } else {
+                writeln!(
+                    &mut cmpf,
+                    "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
+                    name, d0, relscore, score, relbest, best
+                )
+                .unwrap();
+            }
+        }
+        vs_best.sort_by(|a, b| a.0.total_cmp(&b.0));
+        vs_target.sort_by(|a, b| a.0.total_cmp(&b.0));
+
+        println!("check follow cases:");
+        println!("vs best");
+        for result in vs_best.iter().take(5) {
+            let (d, score, best, name) = result;
+            let d = d.abs();
+            let rs = rscore(*score);
+            let rb = rscore(*best);
+            println!(
+                "  {}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
+                name, d, rs, score, rb, best
+            );
+        }
+        if vs_target.len() > 0 {
+            println!("vs target");
+            for result in vs_target.iter().take(5) {
+                let (r, score, target, name) = result;
+                let r = 100. * r.abs();
+                let rs = rscore(*score);
+                let rt = rscore(*target);
+                println!(
+                    "  {}: {:7.3}% (now = ({:.3}, {}), target = ({:.3}, {}))",
+                    name, r, rs, score, rt, target,
+                );
+            }
+        }
+        let bests = checker.get_best_results();
         let mut f = File::create(setting.best_detail).unwrap();
         for (name, score) in bests {
             writeln!(&mut f, "{} = {}", name, score)?;

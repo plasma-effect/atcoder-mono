@@ -1,7 +1,7 @@
-use crate::utils::{CompareResult, Setting, read_best, write_best};
-use std::io::Write;
+use crate::checker::Checker;
+use crate::utils::{CompareResult, Setting, ratio, read_best, write_best};
+use std::collections::HashMap;
 use std::path::PathBuf;
-use std::{collections::HashMap, fs::File, io};
 pub struct AbsChecker {
     best: i64,
     bestpath: PathBuf,
@@ -10,22 +10,9 @@ pub struct AbsChecker {
     increase: bool,
 }
 
-fn ratio(a: i64, b: i64, increase: bool) -> f64 {
-    let a = a as f64;
-    let b = b as f64;
-    if increase {
-        a / b
-    } else if a == 0.0 {
-        f64::INFINITY
-    } else {
-        b / a
-    }
-}
-
 fn compare<T: PartialOrd>(a: T, b: T, increase: bool) -> bool {
     if increase { a > b } else { a < b }
 }
-
 impl AbsChecker {
     pub fn create(
         bests: HashMap<String, i64>,
@@ -41,7 +28,10 @@ impl AbsChecker {
             increase: setting.increase,
         }
     }
-    pub fn compare(&mut self, results: HashMap<String, i64>) -> Vec<CompareResult> {
+}
+
+impl Checker for AbsChecker {
+    fn compare(&mut self, results: HashMap<String, i64>) -> Vec<CompareResult> {
         let mut sum = 0;
         let mut compare_results = vec![];
         for (name, score) in &results {
@@ -76,7 +66,7 @@ impl AbsChecker {
         }
         compare_results
     }
-    pub fn get_best_results<'a>(&'a self) -> &'a HashMap<String, i64> {
+    fn get_best_results<'a>(&'a self) -> &'a HashMap<String, i64> {
         &self.bests
     }
 }
