@@ -88,7 +88,7 @@ fn main() -> io::Result<()> {
     if !setting.relative {
         let mut checker = AbsChecker::create(bests, targets, &setting);
         let mut compare_results = checker.compare(results);
-        let mut cmpf = File::create(&setting.best_detail).unwrap();
+        let mut cmpf = File::create(&setting.compare_detail).unwrap();
         compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
         for result in &compare_results {
             let score = result.score;
