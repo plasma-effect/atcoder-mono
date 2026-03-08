@@ -101,22 +101,40 @@ fn main() -> io::Result<()> {
             )
             .unwrap();
         }
-        println!("check follow cases:");
+        let compare = setting.compare;
         compare_results.sort_by(|a, b| {
-            let d0 = -(a.best - a.score).abs();
-            let d1 = -(b.best - b.score).abs();
-            return d0.cmp(&d1);
+            if compare {
+                let d0 = -(a.best - a.score).abs();
+                let d1 = -(b.best - b.score).abs();
+                d0.cmp(&d1)
+            } else {
+                a.score.cmp(&b.score)
+            }
         });
+        println!(
+            "check follow cases (sorted by {}):",
+            if compare { "difference" } else { "score" }
+        );
         for result in compare_results.iter().take(5) {
             let score = result.score;
             let best = result.best;
-            println!(
-                "{}: {:+} (now = {}, best = {})",
-                &result.filename,
-                score - best,
-                score,
-                best
-            );
+            if compare {
+                println!(
+                    "{}: {:+} (now = {}, best = {})",
+                    &result.filename,
+                    score - best,
+                    score,
+                    best
+                );
+            } else {
+                println!(
+                    "{}: {} (best = {}, diff = {:+})",
+                    &result.filename,
+                    score,
+                    best,
+                    score - best
+                );
+            }
         }
         let bests = checker.get_best_results();
         let mut f = File::create(setting.best_detail).unwrap();
@@ -128,7 +146,7 @@ fn main() -> io::Result<()> {
         let mut compare_results = checker.compare(results);
         let mut vs_best = vec![];
         let mut vs_target = vec![];
-        let mut cmpf = File::create(setting.compare).unwrap();
+        let mut cmpf = File::create(setting.compare_detail).unwrap();
         compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
         for result in &compare_results {
             let score = result.score;
@@ -160,7 +178,7 @@ fn main() -> io::Result<()> {
         vs_best.sort_by(|a, b| a.0.total_cmp(&b.0));
         vs_target.sort_by(|a, b| a.0.total_cmp(&b.0));
 
-        println!("check follow cases:");
+        println!("check follow cases (sorted by difference):");
         println!("vs best");
         for result in vs_best.iter().take(5) {
             let (d, score, best, name) = result;

@@ -7,9 +7,10 @@ use std::{fs::File, path::PathBuf, str::FromStr};
 pub struct Setting {
     pub increase: bool,
     pub relative: bool,
+    pub compare: bool,
     pub best: PathBuf,
     pub best_detail: PathBuf,
-    pub compare: PathBuf,
+    pub compare_detail: PathBuf,
     pub target: PathBuf,
     pub input: PathBuf,
     pub output: PathBuf,
