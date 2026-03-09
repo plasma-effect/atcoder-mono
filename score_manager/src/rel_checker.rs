@@ -79,4 +79,52 @@ impl Checker for RelChecker {
     fn get_best_results<'a>(&'a self) -> &'a HashMap<String, i64> {
         &self.bests
     }
+
+    fn make_vs_best_results(&self, compare_results: &Vec<CompareResult>) -> Vec<String> {
+        let mut data = vec![];
+        for result in compare_results {
+            let score = result.score;
+            let best = result.best;
+            let name = &result.filename;
+            let d0 = (rscore(score) - rscore(best)).abs();
+            data.push((-d0, score, best, name.clone()));
+        }
+        data.sort_by(|a, b| a.0.total_cmp(&b.0));
+        let mut result = vec![];
+        for (d, score, best, name) in data {
+            let d = d.abs();
+            let rs = rscore(score);
+            let rb = rscore(best);
+            result.push(format!(
+                "  {}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
+                name, d, rs, score, rb, best
+            ));
+        }
+        result
+    }
+
+    fn make_vs_target_results(&self, compare_results: &Vec<CompareResult>) -> Vec<String> {
+        let mut data = vec![];
+        for result in compare_results {
+            println!("{:?}", result);
+            if let Some(target) = result.target {
+                let score = result.score;
+                let name = &result.filename;
+                let r = ratio(score, target, self.increase);
+                data.push((r, score, target, name.clone()));
+            }
+        }
+        data.sort_by(|a, b| a.0.total_cmp(&b.0));
+        let mut result = vec![];
+        for (r, score, target, name) in data {
+            let r = 100. * r.abs();
+            let rs = rscore(score);
+            let rt = rscore(target);
+            result.push(format!(
+                "  {}: {:7.3}% (now = ({:.3}, {}), target = ({:.3}, {}))",
+                name, r, rs, score, rt, target,
+            ));
+        }
+        result
+    }
 }

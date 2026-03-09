@@ -11,6 +11,7 @@ use crate::abs_checker::AbsChecker;
 use crate::checker::Checker;
 use crate::manager_base::expand;
 use crate::rel_checker::{RelChecker, rscore};
+use crate::utils::CompareResult;
 use crate::utils::{Setting, compare, ratio};
 
 mod abs_checker;
@@ -76,6 +77,43 @@ fn read_results(
     Ok(results)
 }
 
+fn write_compare_result(setting: &Setting, compare_results: &Vec<CompareResult>) {
+    let mut cmpf = File::create(&setting.compare_detail).unwrap();
+    for result in compare_results {
+        let score = result.score;
+        let best = result.best;
+        let name = &result.filename;
+        if !setting.relative {
+            let diff = score - best;
+            writeln!(
+                &mut cmpf,
+                "{}: {} (now = {}, best = {})",
+                name, diff, score, best
+            )
+        } else {
+            let relscore = rscore(score);
+            let relbest = rscore(best);
+            if let Some(target) = result.target {
+                let reltarget = rscore(target);
+                let ratio = ratio(score, target, setting.increase);
+                writeln!(
+                    &mut cmpf,
+                    "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {}))",
+                    name, ratio, relscore, score, relbest, best, reltarget, target
+                )
+            } else {
+                let reldiff = (rscore(score) - rscore(best)).abs();
+                writeln!(
+                    &mut cmpf,
+                    "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
+                    name, reldiff, relscore, score, relbest, best
+                )
+            }
+        }
+        .unwrap();
+    }
+}
+
 fn main() -> io::Result<()> {
     let opts = opts().run();
     let mut setting = String::new();
@@ -85,129 +123,35 @@ fn main() -> io::Result<()> {
     let results = read_results(&setting.input, &setting.output, &setting.vis)?;
     let bests = read_file_or_default(&setting.best_detail);
     let targets = read_file_or_default(&setting.target);
-    if !setting.relative {
-        let mut checker = AbsChecker::create(bests, targets, &setting);
-        let mut compare_results = checker.compare(results);
-        let mut cmpf = File::create(&setting.compare_detail).unwrap();
-        compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
-        for result in &compare_results {
-            let score = result.score;
-            let best = result.best;
-            let diff = score - best;
-            writeln!(
-                &mut cmpf,
-                "{}: {} (now = {}, best = {})",
-                &result.filename, diff, score, best
-            )
-            .unwrap();
-        }
-        let compare = setting.compare;
-        compare_results.sort_by(|a, b| {
-            if compare {
-                let d0 = -(a.best - a.score).abs();
-                let d1 = -(b.best - b.score).abs();
-                d0.cmp(&d1)
-            } else {
-                a.score.cmp(&b.score)
-            }
-        });
-        println!(
-            "check follow cases (sorted by {}):",
-            if compare { "difference" } else { "score" }
-        );
-        for result in compare_results.iter().take(5) {
-            let score = result.score;
-            let best = result.best;
-            if compare {
-                println!(
-                    "{}: {:+} (now = {}, best = {})",
-                    &result.filename,
-                    score - best,
-                    score,
-                    best
-                );
-            } else {
-                println!(
-                    "{}: {} (best = {}, diff = {:+})",
-                    &result.filename,
-                    score,
-                    best,
-                    score - best
-                );
-            }
-        }
-        let bests = checker.get_best_results();
-        let mut f = File::create(setting.best_detail).unwrap();
-        for (name, score) in bests {
-            writeln!(&mut f, "{} = {}", name, score)?;
-        }
+    let mut checker: Box<dyn Checker> = if !setting.relative {
+        Box::new(AbsChecker::create(bests, targets, &setting))
     } else {
-        let mut checker = RelChecker::create(bests, targets, &setting);
-        let mut compare_results = checker.compare(results);
-        let mut vs_best = vec![];
-        let mut vs_target = vec![];
-        let mut cmpf = File::create(setting.compare_detail).unwrap();
-        compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
-        for result in &compare_results {
-            let score = result.score;
-            let relscore = rscore(score);
-            let best = result.best;
-            let relbest = rscore(best);
-            let name = &result.filename;
-            let d0 = (rscore(score) - rscore(best)).abs();
-            vs_best.push((-d0, score, best, name.clone()));
-            if let Some(target) = result.target {
-                let reltarget = rscore(target);
-                let d1 = ratio(score, target, setting.increase);
-                writeln!(
-                    &mut cmpf,
-                    "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}), target = ({:.3}, {}))",
-                    name, d1, relscore, score, relbest, best, reltarget, target
-                )
-                .unwrap();
-                vs_target.push((d1, score, target, result.filename.clone()));
-            } else {
-                writeln!(
-                    &mut cmpf,
-                    "{}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
-                    name, d0, relscore, score, relbest, best
-                )
-                .unwrap();
-            }
+        Box::new(RelChecker::create(bests, targets, &setting))
+    };
+    let mut compare_results = checker.compare(results);
+    compare_results.sort_by(|a, b| a.filename.cmp(&b.filename));
+    write_compare_result(&setting, &compare_results);
+    let vs_best = checker.make_vs_best_results(&compare_results);
+    let vs_target = checker.make_vs_target_results(&compare_results);
+    println!("check follow cases:",);
+    println!("vs best:");
+    for message in vs_best.iter().take(5) {
+        println!("{}", message);
+    }
+    if vs_target.len() > 0 {
+        if !setting.relative {
+            println!("absolute score:");
+        } else {
+            println!("vs target:");
         }
-        vs_best.sort_by(|a, b| a.0.total_cmp(&b.0));
-        vs_target.sort_by(|a, b| a.0.total_cmp(&b.0));
-
-        println!("check follow cases (sorted by difference):");
-        println!("vs best");
-        for result in vs_best.iter().take(5) {
-            let (d, score, best, name) = result;
-            let d = d.abs();
-            let rs = rscore(*score);
-            let rb = rscore(*best);
-            println!(
-                "  {}: {:7.3} (now = ({:.3}, {}), best = ({:.3}, {}))",
-                name, d, rs, score, rb, best
-            );
+        for message in vs_target.iter().take(5) {
+            println!("{}", message);
         }
-        if vs_target.len() > 0 {
-            println!("vs target");
-            for result in vs_target.iter().take(5) {
-                let (r, score, target, name) = result;
-                let r = 100. * r.abs();
-                let rs = rscore(*score);
-                let rt = rscore(*target);
-                println!(
-                    "  {}: {:7.3}% (now = ({:.3}, {}), target = ({:.3}, {}))",
-                    name, r, rs, score, rt, target,
-                );
-            }
-        }
-        let bests = checker.get_best_results();
-        let mut f = File::create(setting.best_detail).unwrap();
-        for (name, score) in bests {
-            writeln!(&mut f, "{} = {}", name, score)?;
-        }
+    }
+    let bests = checker.get_best_results();
+    let mut f = File::create(setting.best_detail).unwrap();
+    for (name, score) in bests {
+        writeln!(&mut f, "{} = {}", name, score)?;
     }
     return Ok(());
 }

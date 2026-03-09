@@ -69,4 +69,48 @@ impl Checker for AbsChecker {
     fn get_best_results<'a>(&'a self) -> &'a HashMap<String, i64> {
         &self.bests
     }
+
+    fn make_vs_best_results(&self, compare_results: &Vec<CompareResult>) -> Vec<String> {
+        let mut data = vec![];
+        for result in compare_results {
+            let score = result.score;
+            let best = result.best;
+            let diff = (score - best).abs();
+            let name = &result.filename;
+            data.push((-diff, score, best, name.clone()));
+        }
+        data.sort();
+        let mut result = vec![];
+        for (_, score, best, name) in data {
+            let diff = score - best;
+            result.push(format!(
+                "  {}: {:+} (now = {}, best = {})",
+                name, diff, score, best
+            ));
+        }
+        result
+    }
+
+    fn make_vs_target_results(&self, compare_results: &Vec<CompareResult>) -> Vec<String> {
+        let mut data = vec![];
+        for result in compare_results {
+            let score = result.score;
+            let best = result.best;
+            let name = &result.filename;
+            data.push((score, best, name.clone()));
+        }
+        data.sort();
+        if !self.increase {
+            data.reverse();
+        }
+        let mut result = vec![];
+        for (score, best, name) in data {
+            let diff = score - best;
+            result.push(format!(
+                "  {}: {} (best = {}, diff = {:+})",
+                name, score, best, diff
+            ));
+        }
+        result
+    }
 }
